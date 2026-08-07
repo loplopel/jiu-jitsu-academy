@@ -1,4 +1,90 @@
 'use client';
-import {useEffect,useState} from 'react';import {AppShell} from '@/components/app-shell';import {Plus,RefreshCw} from 'lucide-react';
-type Row={id:string;cpf?:string;degrees?:number;status?:string;profiles?:{name?:string;email?:string;phone?:string}|null;belts?:{name?:string}|null;plans?:{name?:string}|null};
-export default function Page(){const[rows,setRows]=useState<Row[]>([]);const[open,setOpen]=useState(false);const[msg,setMsg]=useState('');const[form,setForm]=useState({name:'',email:'',phone:'',cpf:'',status:'ativo'});async function load(){const r=await fetch('/api/students',{cache:'no-store'});if(r.ok)setRows(await r.json())}useEffect(()=>{void load()},[]);async function save(e:React.FormEvent){e.preventDefault();setMsg('Salvando...');const r=await fetch('/api/students',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...form,degrees:0})});const j=await r.json();if(!r.ok){setMsg(j.error||'Falha ao cadastrar');return}setMsg('Aluno cadastrado e convite enviado por e-mail.');setForm({name:'',email:'',phone:'',cpf:'',status:'ativo'});setOpen(false);await load()}return <AppShell><section className="hero"><div className="split"><div><h1>Alunos</h1><div className="muted">Base real da Conexão Paulista. Nenhum aluno fictício.</div></div><button className="btn btn-primary" onClick={()=>setOpen(v=>!v)}><Plus size={16}/> Cadastrar aluno</button></div></section>{open&&<form className="card" style={{padding:18,marginBottom:18}} onSubmit={save}><div className="grid grid-2"><div><label className="label">Nome</label><input className="input" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required/></div><div><label className="label">E-mail</label><input className="input" type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})} required/></div><div><label className="label">Telefone</label><input className="input" value={form.phone} onChange={e=>setForm({...form,phone:e.target.value})}/></div><div><label className="label">CPF</label><input className="input" value={form.cpf} onChange={e=>setForm({...form,cpf:e.target.value})}/></div></div><button className="btn btn-primary" style={{marginTop:14}}>Salvar aluno</button></form>}{msg&&<div className="notice success" style={{marginBottom:14}}>{msg}</div>}<div className="card" style={{padding:18}}><div className="split" style={{marginBottom:12}}><strong>{rows.length} aluno(s)</strong><button className="btn btn-secondary" onClick={load}><RefreshCw size={14}/> Atualizar</button></div>{!rows.length?<div className="empty-state">Nenhum aluno cadastrado. Clique em “Cadastrar aluno” para começar com a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>Faixa</th><th>Graus</th><th>Plano</th><th>Status</th></tr></thead><tbody>{rows.map(x=><tr key={x.id}><td>{x.profiles?.name||'-'}</td><td>{x.cpf||'-'}</td><td>{x.profiles?.phone||'-'}</td><td>{x.belts?.name||'-'}</td><td>{x.degrees??0}</td><td>{x.plans?.name||'-'}</td><td>{x.status||'-'}</td></tr>)}</tbody></table></div>}</div></AppShell>}
+import {useEffect,useMemo,useState} from 'react';
+import {AppShell} from '@/components/app-shell';
+import {Plus,RefreshCw,Pencil,Search,Upload,UserRound,Filter} from 'lucide-react';
+
+type Opt={id:string;name:string;amount?:number;billing_cycle?:string;email?:string};
+type Row={
+  id:string;cpf?:string;whatsapp?:string;birth_date?:string;sex?:string;weight?:number;height?:number;degrees?:number;start_date?:string;last_graduation_date?:string;notes?:string;emergency_contact?:string;emergency_name?:string;emergency_phone?:string;emergency_relation?:string;injuries?:string;status?:string;category_id?:string;responsible_professor_id?:string;belt_id?:string;plan_id?:string;
+  profiles?:{name?:string;email?:string;phone?:string;avatar_url?:string}|null;belts?:{name?:string}|null;plans?:{name?:string;amount?:number}|null;categories?:{name?:string}|null;responsible?:{name?:string}|null
+};
+const empty={name:'',email:'',phone:'',whatsapp:'',avatar_url:'',cpf:'',birth_date:'',sex:'',weight:'',height:'',category_id:'',responsible_professor_id:'',start_date:'',belt_id:'',degrees:0,last_graduation_date:'',notes:'',emergency_contact:'',emergency_name:'',emergency_phone:'',emergency_relation:'',injuries:'',plan_id:'',status:'ativo'};
+
+export default function Page(){
+  const[rows,setRows]=useState<Row[]>([]); const[opts,setOpts]=useState<{belts:Opt[];categories:Opt[];plans:Opt[];professors:Opt[]}>({belts:[],categories:[],plans:[],professors:[]});
+  const[open,setOpen]=useState(false); const[editing,setEditing]=useState<string|null>(null); const[msg,setMsg]=useState(''); const[form,setForm]=useState<any>(empty); const[photo,setPhoto]=useState<File|null>(null); const[saving,setSaving]=useState(false);
+  const[q,setQ]=useState(''); const[status,setStatus]=useState('todos'); const[belt,setBelt]=useState('todos'); const[plan,setPlan]=useState('todos');
+
+  async function load(){
+    const[r,o]=await Promise.all([fetch('/api/students',{cache:'no-store'}),fetch('/api/students/options',{cache:'no-store'})]);
+    const j=await r.json(); const jo=await o.json();
+    if(r.ok)setRows(j); else setMsg(j.error||'Falha ao carregar alunos.');
+    if(o.ok)setOpts(jo); else setMsg(jo.error||'Falha ao carregar cadastros auxiliares.');
+  }
+  useEffect(()=>{void load()},[]);
+
+  const filtered=useMemo(()=>rows.filter(x=>{
+    const text=`${x.profiles?.name||''} ${x.profiles?.email||''} ${x.cpf||''} ${x.profiles?.phone||''}`.toLowerCase();
+    return(!q||text.includes(q.toLowerCase()))&&(status==='todos'||x.status===status)&&(belt==='todos'||x.belt_id===belt)&&(plan==='todos'||x.plan_id===plan);
+  }),[rows,q,status,belt,plan]);
+
+  function beginNew(){setEditing(null);setForm({...empty,start_date:new Date().toISOString().slice(0,10)});setPhoto(null);setMsg('');setOpen(true)}
+  function edit(x:Row){setEditing(x.id);setPhoto(null);setForm({
+    name:x.profiles?.name||'',email:x.profiles?.email||'',phone:x.profiles?.phone||'',whatsapp:x.whatsapp||'',avatar_url:x.profiles?.avatar_url||'',cpf:x.cpf||'',birth_date:x.birth_date||'',sex:x.sex||'',weight:x.weight??'',height:x.height??'',category_id:x.category_id||'',responsible_professor_id:x.responsible_professor_id||'',start_date:x.start_date||'',belt_id:x.belt_id||'',degrees:x.degrees??0,last_graduation_date:x.last_graduation_date||'',notes:x.notes||'',emergency_contact:x.emergency_contact||'',emergency_name:x.emergency_name||'',emergency_phone:x.emergency_phone||'',emergency_relation:x.emergency_relation||'',injuries:x.injuries||'',plan_id:x.plan_id||'',status:x.status||'ativo'
+  });setOpen(true)}
+
+  async function uploadPhoto(studentId:string){
+    if(!photo)return form.avatar_url||'';
+    const fd=new FormData(); fd.append('file',photo); fd.append('studentId',studentId);
+    const r=await fetch('/api/students/photo',{method:'POST',body:fd}); const j=await r.json();
+    if(!r.ok)throw new Error(j.error||'Falha ao enviar foto'); return j.url as string;
+  }
+
+  async function save(e:React.FormEvent){
+    e.preventDefault(); setSaving(true); setMsg('Salvando aluno...');
+    try{
+      const payload={...form,id:editing||undefined,weight:form.weight===''?null:Number(form.weight),height:form.height===''?null:Number(form.height),degrees:Number(form.degrees),category_id:form.category_id||null,responsible_professor_id:form.responsible_professor_id||null,belt_id:form.belt_id||null,plan_id:form.plan_id||null};
+      const r=await fetch('/api/students',{method:editing?'PATCH':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)}); const j=await r.json();
+      if(!r.ok)throw new Error(j.error||'Falha ao salvar aluno');
+      const id=editing||j.id; if(photo&&id)await uploadPhoto(id);
+      setMsg(editing?'Aluno atualizado com sucesso.':'Aluno cadastrado e convite enviado por e-mail para criação da senha.'); setOpen(false); setEditing(null); setForm(empty); setPhoto(null); await load();
+    }catch(err:any){setMsg(err.message||'Falha ao salvar aluno.')}finally{setSaving(false)}
+  }
+
+  return <AppShell>
+    <section className="hero"><div className="split"><div><h1>Alunos</h1><div className="muted">Cadastro completo, vínculo com professor, plano, faixa e acesso individual ao aplicativo.</div></div><button className="btn btn-primary" onClick={beginNew}><Plus size={16}/> Novo aluno</button></div></section>
+    {msg&&<div className={msg.includes('sucesso')||msg.includes('convite')?'notice success':'notice error'} style={{marginBottom:14}}>{msg}</div>}
+
+    {open&&<form className="card admin-form" onSubmit={save}>
+      <div className="student-form-heading"><div><strong>{editing?'Editar aluno':'Novo aluno'}</strong><div className="muted small-text">Os campos podem ser atualizados depois. O e-mail cria o acesso individual do aluno.</div></div>{form.avatar_url?<img className="student-avatar-lg" src={form.avatar_url} alt="Foto do aluno"/>:<div className="student-avatar-placeholder"><UserRound size={30}/></div>}</div>
+      <div className="form-section-title">Dados pessoais</div><div className="grid grid-3">
+        <F l="Nome" v={form.name} set={v=>setForm({...form,name:v})} req/><F l="E-mail de acesso" v={form.email} set={v=>setForm({...form,email:v})} type="email" req disabled={!!editing}/><F l="CPF" v={form.cpf} set={v=>setForm({...form,cpf:v})}/>
+        <F l="Telefone" v={form.phone} set={v=>setForm({...form,phone:v})}/><F l="WhatsApp" v={form.whatsapp} set={v=>setForm({...form,whatsapp:v})}/><F l="Data de nascimento" v={form.birth_date} set={v=>setForm({...form,birth_date:v})} type="date"/>
+        <div><label className="label">Sexo</label><select className="input" value={form.sex} onChange={e=>setForm({...form,sex:e.target.value})}><option value="">Não informado</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option><option value="Outro">Outro</option></select></div>
+        <F l="Peso (kg)" v={form.weight} set={v=>setForm({...form,weight:v})} type="number" step="0.1"/><F l="Altura (cm)" v={form.height} set={v=>setForm({...form,height:v})} type="number" step="0.1"/>
+      </div>
+
+      <div className="form-section-title">Vínculos esportivos</div><div className="grid grid-3">
+        <Select l="Categoria" v={form.category_id} set={v=>setForm({...form,category_id:v})} items={opts.categories}/><Select l="Professor responsável" v={form.responsible_professor_id} set={v=>setForm({...form,responsible_professor_id:v})} items={opts.professors}/><Select l="Plano" v={form.plan_id} set={v=>setForm({...form,plan_id:v})} items={opts.plans}/>
+        <Select l="Faixa" v={form.belt_id} set={v=>setForm({...form,belt_id:v})} items={opts.belts}/><F l="Graus" v={form.degrees} set={v=>setForm({...form,degrees:Number(v)})} type="number" min="0" max="6"/><F l="Data da última graduação" v={form.last_graduation_date} set={v=>setForm({...form,last_graduation_date:v})} type="date"/>
+        <F l="Data de início" v={form.start_date} set={v=>setForm({...form,start_date:v})} type="date"/><div><label className="label">Status</label><select className="input" value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="ativo">Ativo</option><option value="inativo">Inativo</option><option value="bloqueado">Bloqueado</option></select></div>
+        <div><label className="label">Foto do aluno</label><label className="upload-field"><Upload size={16}/><span>{photo?photo.name:'Selecionar JPG, PNG ou WEBP'}</span><input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={e=>setPhoto(e.target.files?.[0]||null)}/></label></div>
+      </div>
+
+      <div className="form-section-title">Emergência e observações</div><div className="grid grid-3">
+        <F l="Nome do contato de emergência" v={form.emergency_name} set={v=>setForm({...form,emergency_name:v})}/><F l="Telefone de emergência" v={form.emergency_phone} set={v=>setForm({...form,emergency_phone:v})}/><F l="Parentesco / relação" v={form.emergency_relation} set={v=>setForm({...form,emergency_relation:v})}/>
+        <div className="grid-span-3"><label className="label">Lesões / restrições</label><textarea className="input" rows={2} value={form.injuries} onChange={e=>setForm({...form,injuries:e.target.value})}/></div><div className="grid-span-3"><label className="label">Observações</label><textarea className="input" rows={3} value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})}/></div>
+      </div>
+      <div className="toolbar" style={{marginTop:16}}><button className="btn btn-primary" disabled={saving}>{saving?'Salvando...':editing?'Salvar alterações':'Cadastrar e enviar convite'}</button><button type="button" className="btn btn-secondary" onClick={()=>setOpen(false)}>Cancelar</button></div>
+    </form>}
+
+    <div className="card" style={{padding:18}}><div className="student-toolbar"><div className="search-wrap"><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar por nome, CPF, e-mail ou telefone"/></div><div className="filter-group"><Filter size={15}/><select className="input compact" value={status} onChange={e=>setStatus(e.target.value)}><option value="todos">Todos os status</option><option value="ativo">Ativos</option><option value="inativo">Inativos</option><option value="bloqueado">Bloqueados</option></select><select className="input compact" value={belt} onChange={e=>setBelt(e.target.value)}><option value="todos">Todas as faixas</option>{opts.belts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select><select className="input compact" value={plan} onChange={e=>setPlan(e.target.value)}><option value="todos">Todos os planos</option>{opts.plans.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div><button className="btn btn-secondary" onClick={load}><RefreshCw size={14}/> Atualizar</button></div>
+      <div className="student-summary"><span><strong>{filtered.length}</strong> exibido(s)</span><span><strong>{rows.filter(x=>x.status==='ativo').length}</strong> ativo(s)</span><span><strong>{rows.filter(x=>x.status==='bloqueado').length}</strong> bloqueado(s)</span></div>
+      {!filtered.length?<div className="empty-state">Nenhum aluno encontrado. Clique em “Novo aluno” para iniciar a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Contato</th><th>Faixa</th><th>Professor</th><th>Plano</th><th>Início</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(x=><tr key={x.id}><td><div className="student-cell">{x.profiles?.avatar_url?<img src={x.profiles.avatar_url} className="student-avatar" alt=""/>:<div className="student-avatar mini"><UserRound size={16}/></div>}<div><strong>{x.profiles?.name||'-'}</strong><div className="muted small-text">{x.cpf||x.profiles?.email||'-'}</div></div></div></td><td>{x.whatsapp||x.profiles?.phone||'-'}<div className="muted small-text">{x.profiles?.email}</div></td><td>{x.belts?.name||'-'} <span className="muted">• {x.degrees??0} grau(s)</span></td><td>{x.responsible?.name||'-'}</td><td>{x.plans?.name||'-'}</td><td>{formatDate(x.start_date)}</td><td><span className={`status-badge status-${x.status}`}>{x.status||'-'}</span></td><td><button className="icon-btn" onClick={()=>edit(x)} title="Editar aluno"><Pencil size={15}/></button></td></tr>)}</tbody></table></div>}
+    </div>
+  </AppShell>
+}
+
+function F({l,v,set,type='text',req=false,disabled=false,step,min,max}:{l:string;v:any;set:(v:any)=>void;type?:string;req?:boolean;disabled?:boolean;step?:string;min?:string;max?:string}){return <div><label className="label">{l}</label><input className="input" type={type} value={v??''} onChange={e=>set(e.target.value)} required={req} disabled={disabled} step={step} min={min} max={max}/></div>}
+function Select({l,v,set,items}:{l:string;v:string;set:(v:string)=>void;items:Opt[]}){return <div><label className="label">{l}</label><select className="input" value={v||''} onChange={e=>set(e.target.value)}><option value="">Não informado</option>{items.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div>}
+function formatDate(v?:string){if(!v)return '-';const [y,m,d]=v.slice(0,10).split('-');return y&&m&&d?`${d}/${m}/${y}`:v}

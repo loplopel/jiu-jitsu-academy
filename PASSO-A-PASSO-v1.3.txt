@@ -1,0 +1,20 @@
+JIU-JITSU ACADEMY v1.3 - INSTALAÇÃO DA EVOLUÇÃO
+
+1) Faça backup da pasta atual do projeto.
+2) Extraia esta v1.3 e substitua os arquivos da pasta do projeto.
+3) NÃO apague/substitua seu .env.local.
+4) Supabase > SQL Editor > New Query.
+5) Abra supabase/v1.3-alunos.sql, copie tudo e clique em Run.
+6) No VS Code:
+   npm install
+   npm run dev
+7) Abra http://localhost:3000/alunos
+8) Cadastre um aluno de teste real e confira o convite por e-mail.
+9) Faça o login do aluno em janela anônima para validar o acesso.
+10) Antes de produção:
+   npm run build
+   git add .
+   git commit -m "v1.3 Cadastro completo de alunos"
+   git push
+
+A migração v1.3 NÃO APAGA professores, planos, horários, categorias, graduações ou alunos existentes.

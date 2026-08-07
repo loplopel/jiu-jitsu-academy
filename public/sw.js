@@ -1,12 +1,75 @@
-const CACHE='conexao-paulista-v1';
-const CORE=['/login','/offline','/icon-192.png','/icon-512.png','/logo-conexao-paulista.png','/apple-touch-icon.png'];
-self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)));self.skipWaiting();});
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim();});
-self.addEventListener('fetch',event=>{
-  if(event.request.method!=='GET')return;
-  const url=new URL(event.request.url);
-  if(url.origin!==location.origin||url.pathname.startsWith('/api/'))return;
-  const cacheable=CORE.includes(url.pathname)||url.pathname.startsWith('/_next/static/')||/\.(png|svg|ico|webp|jpg|jpeg|css|js|woff2?)$/.test(url.pathname);
-  if(!cacheable)return;
-  event.respondWith(caches.match(event.request).then(cached=>cached||fetch(event.request).then(res=>{if(res.ok){const copy=res.clone();caches.open(CACHE).then(c=>c.put(event.request,copy))}return res}).catch(()=>caches.match('/offline'))));
+const CACHE = 'conexao-paulista-v2';
+
+const STATIC_FILES = [
+  '/offline',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/logo-conexao-paulista.png',
+  '/apple-touch-icon.png'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE).then(cache => cache.addAll(STATIC_FILES))
+  );
+
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(
+        keys
+          .filter(key => key !== CACHE)
+          .map(key => caches.delete(key))
+      )
+    )
+  );
+
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', event => {
+  const request = event.request;
+
+  if (request.method !== 'GET') return;
+
+  const url = new URL(request.url);
+
+  if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/api/')) return;
+
+  // Páginas sempre vêm da internet.
+  // Evita login/dashboard antigos presos no PWA.
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request).catch(() => caches.match('/offline'))
+    );
+    return;
+  }
+
+  const isStatic =
+    url.pathname.startsWith('/_next/static/') ||
+    /\.(png|svg|ico|webp|jpg|jpeg|css|js|woff2?)$/i.test(url.pathname);
+
+  if (!isStatic) return;
+
+  event.respondWith(
+    caches.match(request).then(cached => {
+      if (cached) return cached;
+
+      return fetch(request).then(response => {
+        if (response.ok) {
+          const copy = response.clone();
+
+          caches.open(CACHE).then(cache => {
+            cache.put(request, copy);
+          });
+        }
+
+        return response;
+      });
+    })
+  );
 });

@@ -216,3 +216,6 @@ No Supabase, abra **SQL Editor**, crie uma nova query e execute:
 `supabase/v1.2-cadastros.sql`
 
 Isso cria apenas a estrutura adicional de professores e as políticas de horários; não apaga alunos, usuários ou dados existentes.
+
+## v1.3 — Cadastro completo de alunos
+A v1.3 adiciona cadastro e edição completa de alunos, vínculo com professor/plano/categoria/faixa, convite de acesso por e-mail, filtros e foto no Supabase Storage. Para projetos atualizados a partir da v1.2, execute `supabase/v1.3-alunos.sql` uma única vez.
