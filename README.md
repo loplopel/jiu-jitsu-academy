@@ -166,3 +166,34 @@ tests/
 
 ## Próximas integrações opcionais
 A estrutura suporta futuras integrações com Mercado Pago/Pagar.me/Stripe, WhatsApp Business API, catraca, leitor NFC, push notification e assinatura digital.
+
+## v1.1 - Conexão Paulista + PWA + base real
+
+Esta versão remove os dados demonstrativos visíveis do aplicativo e usa a base real do Supabase para Dashboard, Alunos, Usuários/Professores, Aulas, Ranking, Painel do Professor, Painel do Aluno e Relatórios.
+
+### PWA / celular
+O projeto agora possui manifest, Service Worker, ícones 192/512, Apple Touch Icon, tela offline e navegação inferior no celular. Em Android/Chrome, o navegador pode oferecer o botão **Instalar**. Em iPhone/Safari, use **Compartilhar > Adicionar à Tela de Início**.
+
+A validação de QR Code continua online por segurança: o Service Worker não transforma check-ins em registros offline.
+
+### Logo
+A identidade visual utiliza o logo oficial Conexão Paulista fornecido para o projeto.
+
+### Limpeza de testes
+Se houver dados operacionais de teste no Supabase, execute `supabase/reset-operational-data.sql`. O script mantém usuários/perfis, faixas e conquistas-base. Revise o arquivo antes de executar em produção.
+
+### Deploy da v1.1
+Depois de substituir/atualizar os arquivos:
+
+```bash
+npm install
+npm run typecheck
+npm run lint
+npm test
+npm run build
+git add .
+git commit -m "v1.1 Conexao Paulista PWA e base real"
+git push
+```
+
+A Vercel fará o novo deploy automaticamente após o `git push` na branch `main`.
