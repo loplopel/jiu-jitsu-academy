@@ -197,3 +197,22 @@ git push
 ```
 
 A Vercel fará o novo deploy automaticamente após o `git push` na branch `main`.
+
+## v1.2 — Cadastros administrativos
+
+A v1.2 transforma a tela **Cadastros** em módulos reais e navegáveis:
+
+- Professores — cadastro completo, edição, ativação/inativação e convite por e-mail.
+- Horários — grade semanal com professor, horário e limite de alunos.
+- Categorias — peso, idade, sexo e situação.
+- Planos — valor, ciclo, limite de aulas e situação.
+- Graduações — gestão das faixas, ordem e tempo mínimo.
+- Mensalidades — geração e atualização de status.
+
+### Atualização obrigatória do banco para quem veio da v1.1
+
+No Supabase, abra **SQL Editor**, crie uma nova query e execute:
+
+`supabase/v1.2-cadastros.sql`
+
+Isso cria apenas a estrutura adicional de professores e as políticas de horários; não apaga alunos, usuários ou dados existentes.

@@ -8,13 +8,7 @@ export function PwaRegister(){
   const [prompt,setPrompt]=useState<InstallPromptEvent|null>(null);
   const [show,setShow]=useState(false);
   useEffect(()=>{
-    if (
-      'serviceWorker' in navigator &&
-      window.location.hostname !== 'localhost' &&
-      window.location.hostname !== '127.0.0.1'
-    ) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-    }
+    if('serviceWorker' in navigator && window.location.hostname!=='localhost' && window.location.hostname!=='127.0.0.1') navigator.serviceWorker.register('/sw.js').catch(()=>{});
     const handler=(e:Event)=>{e.preventDefault();setPrompt(e as InstallPromptEvent);setShow(true)};
     window.addEventListener('beforeinstallprompt',handler);
     return()=>window.removeEventListener('beforeinstallprompt',handler);

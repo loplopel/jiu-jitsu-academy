@@ -116,3 +116,17 @@ grant select on public.monthly_ranking to authenticated;
 create policy "profile self update" on profiles for update using(id=auth.uid()) with check(id=auth.uid());
 revoke update on public.profiles from authenticated;
 grant update(name,phone,avatar_url) on public.profiles to authenticated;
+
+-- v1.2: detalhes específicos dos professores
+create table if not exists public.professor_details (
+ id uuid primary key references public.profiles(id) on delete cascade,
+ cpf text unique, whatsapp text, birth_date date, belt_id uuid references public.belts(id),
+ degrees int not null default 0 check(degrees between 0 and 6), specialty text,
+ start_date date default current_date, notes text,
+ created_at timestamptz not null default now(), updated_at timestamptz not null default now()
+);
+alter table public.professor_details enable row level security;
+create policy "staff reads professor details" on public.professor_details for select to authenticated using(public.is_professor());
+create policy "admin manages professor details" on public.professor_details for all to authenticated using(public.is_admin()) with check(public.is_admin());
+create policy "schedules visible authenticated" on public.schedules for select to authenticated using(true);
+create policy "admin manages schedules" on public.schedules for all to authenticated using(public.is_admin()) with check(public.is_admin());

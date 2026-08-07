@@ -1,0 +1,51 @@
+JIU-JITSU ACADEMY / CONEXÃO PAULISTA - ATUALIZAÇÃO v1.2
+========================================================
+
+SE VOCÊ JÁ ESTÁ NA v1.1 (seu caso):
+
+1) Faça backup da pasta atual por segurança.
+2) Extraia este ZIP.
+3) Substitua os arquivos da sua pasta jiu-jitsu-academy pelos arquivos da v1.2.
+4) NÃO apague nem substitua o seu .env.local.
+5) No Supabase > SQL Editor, execute o arquivo:
+   supabase/v1.2-cadastros.sql
+
+   Esse SQL NÃO apaga sua base. Ele cria a estrutura de detalhes de professores
+   e as políticas necessárias para a grade de horários.
+
+6) No terminal do VS Code execute:
+   npm install
+   npm run dev
+
+7) Teste:
+   http://localhost:3000/cadastros
+
+8) Agora os seis botões Gerenciar abrem módulos reais:
+   /cadastros/professores
+   /cadastros/horarios
+   /cadastros/categorias
+   /cadastros/planos
+   /cadastros/graduacoes
+   /cadastros/mensalidades
+
+9) Quando estiver aprovado:
+   git add .
+   git commit -m "v1.2 cadastros administrativos"
+   git push
+
+10) A Vercel fará o deploy automaticamente.
+
+ORDEM RECOMENDADA PARA COMEÇAR COM DADOS REAIS:
+1. Graduações / faixas
+2. Categorias
+3. Planos
+4. Professores
+5. Horários
+6. Alunos
+7. Mensalidades
+8. Primeira aula + reserva + QR
+
+IMPORTANTE:
+- O cadastro de professor envia convite por e-mail para ele criar a senha.
+- O .env.local nunca deve ir para o GitHub.
+- SUPABASE_SERVICE_ROLE_KEY é secreta e deve existir somente no servidor/Vercel.

@@ -1,2 +1,20 @@
+import Link from 'next/link';
 import {AppShell} from '@/components/app-shell';
-export default function Page(){return <AppShell><section className="hero"><h1>Cadastros administrativos</h1><div className="muted">Professores, horários, categorias, planos e parâmetros da academia.</div></section><div className="grid grid-3">{[['Professores','Perfis, contato, situação e permissões.'],['Horários','Grade semanal, professor e limite de alunos.'],['Categorias','Peso, idade, sexo e grupos competitivos.'],['Planos','Mensal, trimestral, anual e limites.'],['Graduações','Faixas, graus e tempo mínimo.'],['Mensalidades','Geração, vencimento e situação.']].map(([a,b])=><div className="card stat" key={a}><span className="pill">CADASTRO</span><h2>{a}</h2><p className="muted">{b}</p><button className="btn btn-secondary">Gerenciar</button></div>)}</div></AppShell>}
+import {Users,Clock3,Tags,CreditCard,Award,Receipt} from 'lucide-react';
+
+const cards=[
+  {title:'Professores',desc:'Perfis, contato, situação e permissões.',href:'/cadastros/professores',Icon:Users},
+  {title:'Horários',desc:'Grade semanal, professor e limite de alunos.',href:'/cadastros/horarios',Icon:Clock3},
+  {title:'Categorias',desc:'Peso, idade, sexo e grupos competitivos.',href:'/cadastros/categorias',Icon:Tags},
+  {title:'Planos',desc:'Mensal, trimestral, anual e limites.',href:'/cadastros/planos',Icon:CreditCard},
+  {title:'Graduações',desc:'Faixas, graus e tempo mínimo.',href:'/cadastros/graduacoes',Icon:Award},
+  {title:'Mensalidades',desc:'Geração, vencimento e situação.',href:'/cadastros/mensalidades',Icon:Receipt},
+];
+
+export default function Page(){return <AppShell>
+  <section className="hero"><h1>Cadastros administrativos</h1><div className="muted">Professores, horários, categorias, planos e parâmetros da academia.</div></section>
+  <div className="grid grid-3">{cards.map(({title,desc,href,Icon})=><div className="card stat cadastro-card" key={title}>
+    <span className="pill"><Icon size={14}/> CADASTRO</span><h2>{title}</h2><p className="muted">{desc}</p>
+    <Link className="btn btn-secondary cadastro-link" href={href}>Gerenciar</Link>
+  </div>)}</div>
+</AppShell>}
