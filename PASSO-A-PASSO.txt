@@ -1,0 +1,46 @@
+JIU-JITSU ACADEMY - INÍCIO RÁPIDO
+=================================
+
+1) Extraia o ZIP e abra a pasta "jiu-jitsu-academy" no Visual Studio Code.
+
+2) No terminal do VS Code execute:
+   npm install
+
+3) Crie um projeto no Supabase.
+
+4) No Supabase > SQL Editor:
+   - abra o arquivo supabase/schema.sql deste projeto;
+   - copie tudo;
+   - execute no SQL Editor.
+
+5) Copie .env.example para .env.local e preencha:
+   NEXT_PUBLIC_SUPABASE_URL
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+   SUPABASE_SERVICE_ROLE_KEY
+   NEXT_PUBLIC_APP_URL
+
+6) No Supabase > Authentication > URL Configuration:
+   Site URL: http://localhost:3000
+   Redirect URL: http://localhost:3000/update-password
+
+7) Crie o primeiro usuário em Authentication > Users.
+   Depois use o comando do README para transformá-lo em Administrador Geral.
+
+8) Rode:
+   npm run dev
+
+9) Abra:
+   http://localhost:3000
+
+10) Antes do deploy:
+    npm run typecheck
+    npm run lint
+    npm test
+    npm run build
+
+11) Para Vercel/GitHub, siga a seção completa no README.md.
+
+IMPORTANTE:
+- Nunca publique o arquivo .env.local.
+- Nunca exponha SUPABASE_SERVICE_ROLE_KEY no front-end.
+- Para e-mail de recuperação em produção, configure SMTP próprio no Supabase.

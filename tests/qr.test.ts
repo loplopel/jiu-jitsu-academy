@@ -1,0 +1,2 @@
+import {describe,it,expect} from 'vitest';import {createQrToken,hashQrToken,isExpired} from '@/lib/qr';
+describe('QR',()=>{it('gera tokens únicos e hash consistente',()=>{const a=createQrToken(),b=createQrToken();expect(a).not.toBe(b);expect(hashQrToken(a)).toHaveLength(64);expect(hashQrToken(a)).toBe(hashQrToken(a))});it('detecta expiração',()=>{expect(isExpired('2020-01-01T00:00:00Z',new Date('2026-01-01'))).toBe(true)})})

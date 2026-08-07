@@ -1,0 +1,4 @@
+'use client';
+import {ResponsiveContainer,AreaChart,Area,XAxis,YAxis,Tooltip,BarChart,Bar} from 'recharts';
+export function MonthlyChart(){const data=[{m:'Mar',v:312},{m:'Abr',v:348},{m:'Mai',v:401},{m:'Jun',v:429},{m:'Jul',v:463},{m:'Ago',v:188}];return <div style={{height:260}}><ResponsiveContainer width="100%" height="100%"><AreaChart data={data}><XAxis dataKey="m"/><YAxis/><Tooltip/><Area dataKey="v" stroke="#d9ad55" fill="#d9ad5533"/></AreaChart></ResponsiveContainer></div>}
+export function OccupancyChart(){const data=[{h:'06h',v:42},{h:'08h',v:60},{h:'12h',v:35},{h:'18h',v:78},{h:'19h',v:91},{h:'20h',v:96},{h:'21h',v:67}];return <div style={{height:260}}><ResponsiveContainer width="100%" height="100%"><BarChart data={data}><XAxis dataKey="h"/><YAxis/><Tooltip/><Bar dataKey="v" fill="#d9ad55" radius={[5,5,0,0]}/></BarChart></ResponsiveContainer></div>}

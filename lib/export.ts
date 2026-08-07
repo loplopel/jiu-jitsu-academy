@@ -1,0 +1,5 @@
+'use client';
+import { jsPDF } from 'jspdf'; import autoTable from 'jspdf-autotable'; import * as XLSX from 'xlsx';
+export function exportCSV(rows:Record<string,unknown>[],name='relatorio'){if(!rows.length)return;const ws=XLSX.utils.json_to_sheet(rows);const csv=XLSX.utils.sheet_to_csv(ws);const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download=`${name}.csv`;a.click()}
+export function exportExcel(rows:Record<string,unknown>[],name='relatorio'){const ws=XLSX.utils.json_to_sheet(rows);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Relatório');XLSX.writeFile(wb,`${name}.xlsx`)}
+export function exportPDF(rows:Record<string,unknown>[],name='relatorio'){if(!rows.length)return;const doc=new jsPDF({orientation:'landscape'});doc.setFontSize(16);doc.text('Jiu-Jitsu Academy - Relatório',14,15);const heads=Object.keys(rows[0]);autoTable(doc,{head:[heads],body:rows.map(r=>heads.map(h=>String(r[h]??''))),startY:22,styles:{fontSize:7}});doc.save(`${name}.pdf`)}
