@@ -108,3 +108,28 @@ export async function PATCH(req:Request){
   if(studentError)return NextResponse.json({error:studentError.message},{status:500});
   return NextResponse.json({ok:true});
 }
+
+
+export async function DELETE(req:Request){
+  const g=await gate(); if('error'in g)return g.error;
+  if(g.role!=='admin')return NextResponse.json({error:'Apenas o Administrador Geral pode excluir alunos.'},{status:403});
+  const id=new URL(req.url).searchParams.get('id');
+  if(!id||!z.string().uuid().safeParse(id).success)return NextResponse.json({error:'Aluno inválido.'},{status:400});
+
+  // Limpa tabelas que possuem referência sem ON DELETE CASCADE.
+  for(const table of ['graduations','monthly_fees','student_achievements','iea_scores']){
+    const {error}=await g.admin.from(table).delete().eq('student_id',id);
+    if(error)return NextResponse.json({error:`Falha ao limpar ${table}: ${error.message}`},{status:500});
+  }
+
+  // Remove fotos do aluno, quando existirem.
+  const {data:files}=await g.admin.storage.from('student-photos').list(id,{limit:100});
+  if(files?.length){
+    await g.admin.storage.from('student-photos').remove(files.map(f=>`${id}/${f.name}`));
+  }
+
+  // Excluir o usuário do Auth remove profiles e students por cascade.
+  const {error}=await g.admin.auth.admin.deleteUser(id);
+  if(error)return NextResponse.json({error:error.message},{status:500});
+  return NextResponse.json({ok:true});
+}

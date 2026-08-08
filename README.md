@@ -219,3 +219,8 @@ Isso cria apenas a estrutura adicional de professores e as políticas de horári
 
 ## v1.3 — Cadastro completo de alunos
 A v1.3 adiciona cadastro e edição completa de alunos, vínculo com professor/plano/categoria/faixa, convite de acesso por e-mail, filtros e foto no Supabase Storage. Para projetos atualizados a partir da v1.2, execute `supabase/v1.3-alunos.sql` uma única vez.
+
+
+## v1.4 — Aulas, reservas e QR dinâmico
+
+A v1.4 fecha o fluxo operacional principal da aula: professor/admin cria e gerencia aulas; aluno reserva/cancela; professor acompanha inscritos; QR dinâmico de 30 segundos é gerado somente durante a aula; cada token é consumido uma vez e renovado automaticamente; presença registra horário, IP, dispositivo e geolocalização quando autorizada. Execute `supabase/v1.4-aulas-qr.sql` antes dos testes.

@@ -1,0 +1,70 @@
+JIU-JITSU ACADEMY v1.4 — PASSO A PASSO
+=======================================
+
+1) Faça backup da sua pasta atual.
+
+2) Extraia a v1.4 e substitua os arquivos do projeto.
+   NÃO APAGUE o seu arquivo .env.local.
+
+3) SUPABASE
+   Abra o SQL Editor e execute:
+   supabase/v1.4-aulas-qr.sql
+
+   Essa migração NÃO apaga professores, alunos, planos, graduações ou aulas existentes.
+
+4) VS CODE
+   No terminal:
+
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run dev
+
+5) TESTE LOCAL
+   Abra:
+   http://localhost:3000/aulas
+
+   ADMIN/PROFESSOR:
+   - crie uma aula com início no horário atual e término alguns minutos depois;
+   - abra a lista de inscritos;
+   - abra o QR Code durante o horário da aula.
+
+   ALUNO:
+   - entre com uma conta de aluno ativa;
+   - reserve a aula;
+   - no celular, escaneie o QR;
+   - autorize localização se desejar;
+   - confirme que aparece "Presença confirmada com sucesso!".
+
+   PROFESSOR:
+   - a tela do QR deve gerar um novo código automaticamente após o uso;
+   - em Aulas > Inscritos, o aluno deve aparecer como Presente.
+
+6) BUILD
+   npm run build
+
+7) GITHUB / VERCEL
+   git status
+   git add .
+   git commit -m "v1.4 Aulas reservas e QR real"
+   git push
+
+   Aguarde o deployment da Vercel ficar Ready.
+
+8) PWA NO CELULAR
+   Se o celular estiver com versão antiga instalada/cacheada:
+   - remova o app da tela inicial;
+   - Chrome > Configurações do site > jiu-jitsu-academy.vercel.app > Limpar e redefinir;
+   - abra novamente o site online e instale o PWA.
+
+IMPORTANTE
+- QR só funciona durante o horário da aula.
+- QR dura 30 segundos.
+- Cada token confirma uma única presença; depois a tela gera outro automaticamente.
+- Um aluno não consegue registrar presença duas vezes na mesma aula.
+
+REVISAO FINAL - ACESSO DO ALUNO
+1. Cadastre o aluno normalmente.
+2. Ele recebe o convite por e-mail.
+3. Ao clicar no link, /update-password valida o codigo e cria a sessao de recuperacao.
+4. Se o link expirar, use Alunos > icone de e-mail ou a tela Esqueci minha senha.
+5. Para apagar um aluno de teste, use Alunos > lixeira. Somente Administrador Geral pode excluir.

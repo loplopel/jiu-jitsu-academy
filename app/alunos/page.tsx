@@ -1,7 +1,7 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
 import {AppShell} from '@/components/app-shell';
-import {Plus,RefreshCw,Pencil,Search,Upload,UserRound,Filter} from 'lucide-react';
+import {Plus,RefreshCw,Pencil,Search,Upload,UserRound,Filter,Trash2,Mail} from 'lucide-react';
 
 type Opt={id:string;name:string;amount?:number;billing_cycle?:string;email?:string};
 type Row={
@@ -38,6 +38,28 @@ export default function Page(){
     const fd=new FormData(); fd.append('file',photo); fd.append('studentId',studentId);
     const r=await fetch('/api/students/photo',{method:'POST',body:fd}); const j=await r.json();
     if(!r.ok)throw new Error(j.error||'Falha ao enviar foto'); return j.url as string;
+  }
+
+  async function removeStudent(x:Row){
+    const name=x.profiles?.name||'este aluno';
+    if(!window.confirm(`Excluir ${name}? O acesso, cadastro e dados vinculados a este aluno serão removidos. Esta ação não pode ser desfeita.`))return;
+    setMsg('Excluindo aluno...');
+    const r=await fetch(`/api/students?id=${encodeURIComponent(x.id)}`,{method:'DELETE'});
+    const j=await r.json();
+    if(!r.ok){setMsg(j.error||'Falha ao excluir aluno.');return;}
+    setMsg('Aluno excluído com sucesso.');
+    await load();
+  }
+
+  async function resendAccess(x:Row){
+    const email=x.profiles?.email;
+    if(!email){setMsg('Este aluno não possui e-mail cadastrado.');return;}
+    const {getSupabaseBrowserClient}=await import('@/lib/supabase-browser');
+    const sb=getSupabaseBrowserClient();
+    if(!sb){setMsg('Supabase não configurado.');return;}
+    setMsg('Enviando novo link de acesso...');
+    const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:`${window.location.origin}/update-password`});
+    setMsg(error?error.message:'Novo link enviado para o e-mail do aluno.');
   }
 
   async function save(e:React.FormEvent){
@@ -80,7 +102,7 @@ export default function Page(){
 
     <div className="card" style={{padding:18}}><div className="student-toolbar"><div className="search-wrap"><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar por nome, CPF, e-mail ou telefone"/></div><div className="filter-group"><Filter size={15}/><select className="input compact" value={status} onChange={e=>setStatus(e.target.value)}><option value="todos">Todos os status</option><option value="ativo">Ativos</option><option value="inativo">Inativos</option><option value="bloqueado">Bloqueados</option></select><select className="input compact" value={belt} onChange={e=>setBelt(e.target.value)}><option value="todos">Todas as faixas</option>{opts.belts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select><select className="input compact" value={plan} onChange={e=>setPlan(e.target.value)}><option value="todos">Todos os planos</option>{opts.plans.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div><button className="btn btn-secondary" onClick={load}><RefreshCw size={14}/> Atualizar</button></div>
       <div className="student-summary"><span><strong>{filtered.length}</strong> exibido(s)</span><span><strong>{rows.filter(x=>x.status==='ativo').length}</strong> ativo(s)</span><span><strong>{rows.filter(x=>x.status==='bloqueado').length}</strong> bloqueado(s)</span></div>
-      {!filtered.length?<div className="empty-state">Nenhum aluno encontrado. Clique em “Novo aluno” para iniciar a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Contato</th><th>Faixa</th><th>Professor</th><th>Plano</th><th>Início</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(x=><tr key={x.id}><td><div className="student-cell">{x.profiles?.avatar_url?<img src={x.profiles.avatar_url} className="student-avatar" alt=""/>:<div className="student-avatar mini"><UserRound size={16}/></div>}<div><strong>{x.profiles?.name||'-'}</strong><div className="muted small-text">{x.cpf||x.profiles?.email||'-'}</div></div></div></td><td>{x.whatsapp||x.profiles?.phone||'-'}<div className="muted small-text">{x.profiles?.email}</div></td><td>{x.belts?.name||'-'} <span className="muted">• {x.degrees??0} grau(s)</span></td><td>{x.responsible?.name||'-'}</td><td>{x.plans?.name||'-'}</td><td>{formatDate(x.start_date)}</td><td><span className={`status-badge status-${x.status}`}>{x.status||'-'}</span></td><td><button className="icon-btn" onClick={()=>edit(x)} title="Editar aluno"><Pencil size={15}/></button></td></tr>)}</tbody></table></div>}
+      {!filtered.length?<div className="empty-state">Nenhum aluno encontrado. Clique em “Novo aluno” para iniciar a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Contato</th><th>Faixa</th><th>Professor</th><th>Plano</th><th>Início</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(x=><tr key={x.id}><td><div className="student-cell">{x.profiles?.avatar_url?<img src={x.profiles.avatar_url} className="student-avatar" alt=""/>:<div className="student-avatar mini"><UserRound size={16}/></div>}<div><strong>{x.profiles?.name||'-'}</strong><div className="muted small-text">{x.cpf||x.profiles?.email||'-'}</div></div></div></td><td>{x.whatsapp||x.profiles?.phone||'-'}<div className="muted small-text">{x.profiles?.email}</div></td><td>{x.belts?.name||'-'} <span className="muted">• {x.degrees??0} grau(s)</span></td><td>{x.responsible?.name||'-'}</td><td>{x.plans?.name||'-'}</td><td>{formatDate(x.start_date)}</td><td><span className={`status-badge status-${x.status}`}>{x.status||'-'}</span></td><td><div style={{display:'flex',gap:6}}><button className="icon-btn" onClick={()=>edit(x)} title="Editar aluno"><Pencil size={15}/></button><button className="icon-btn" onClick={()=>resendAccess(x)} title="Reenviar link de acesso"><Mail size={15}/></button><button className="icon-btn danger" onClick={()=>removeStudent(x)} title="Excluir aluno"><Trash2 size={15}/></button></div></td></tr>)}</tbody></table></div>}
     </div>
   </AppShell>
 }
