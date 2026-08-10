@@ -1,0 +1,36 @@
+JIU-JITSU ACADEMY — v2.0.2
+CORREÇÃO DO CHECK-IN QR DO ALUNO
+
+1. Preserve obrigatoriamente:
+   - .env.local
+   - .git
+
+2. Substitua os arquivos do projeto pelos arquivos desta versão.
+
+3. Não é necessário executar SQL novo.
+
+4. Rode:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run typecheck
+   npm test
+   npm run build
+   npm run dev
+
+5. Teste como Professor:
+   - Abra uma aula.
+   - Entre em Presença / QR pela própria aula.
+   - Confirme que o QR dinâmico aparece.
+
+6. Teste como Aluno no celular:
+   - Faça login.
+   - Toque em Check-in.
+   - Autorize a câmera.
+   - Aponte para o QR do professor.
+   - Aguarde a confirmação da presença.
+
+7. Se o navegador do aparelho não possuir leitor QR interno:
+   - Abra a câmera padrão do celular.
+   - Aponte para o QR do professor.
+   - Toque no link exibido.
+   - O app abrirá /check-in/scan?token=... e validará a presença.
