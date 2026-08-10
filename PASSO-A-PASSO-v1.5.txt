@@ -1,0 +1,46 @@
+JIU-JITSU ACADEMY v1.5 — PASSO A PASSO
+=======================================
+
+1. Extraia o ZIP.
+2. Substitua os arquivos da versão anterior.
+3. PRESERVE o seu arquivo .env.local.
+4. Não é necessário executar SQL novo nesta versão.
+
+LOCAL
+-----
+No terminal do VS Code:
+
+npm install
+Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+npm run dev
+
+Abra:
+http://localhost:3000
+
+TESTES RECOMENDADOS
+-------------------
+1. Entrar como Administrador.
+2. Conferir o novo menu e Dashboard.
+3. Entrar como Professor e conferir o painel simplificado.
+4. Entrar como Aluno e conferir a experiência mobile.
+5. Testar Esqueci minha senha.
+
+ATENÇÃO — E-MAIL / RATE LIMIT
+-----------------------------
+Se aparecer aviso de limite temporário de e-mails, o app agora orienta o usuário corretamente e impede vários reenvios seguidos.
+
+Para uso real com vários professores e alunos, configure SMTP próprio em:
+Supabase > Authentication > Emails / SMTP Settings
+
+Depois de configurar SMTP próprio, os convites e recuperações deixam de depender do limite baixo do serviço padrão de e-mail do projeto.
+
+SUBIR PARA O GITHUB / VERCEL
+-----------------------------
+Após testar:
+
+git status
+git add .
+git commit -m "v1.5 experiencia simplificada por perfil"
+git push
+
+Aguarde o novo Deployment da Vercel ficar Ready.

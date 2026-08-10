@@ -1,0 +1,47 @@
+JIU-JITSU ACADEMY v1.5.3 — LOGIN PRÓPRIO ESTÁVEL
+=================================================
+
+1. Extraia o ZIP e substitua os arquivos da versão atual.
+
+2. NÃO apague nem substitua seu arquivo .env.local.
+
+3. NÃO execute SQL novo. A estrutura criada pela v1.5.2 continua válida.
+
+4. No terminal do VS Code, dentro da pasta do projeto:
+
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run dev
+
+5. Abra:
+
+   http://localhost:3000/login
+
+6. Teste seu usuário atual, por exemplo:
+
+   Login: rodrigovbfranco
+   Senha: sua senha atual
+
+7. O destino esperado é:
+
+   Administrador Geral -> /dashboard
+   Professor           -> /professor
+   Aluno               -> /meu-painel
+
+8. Se o login funcionar, valide o build:
+
+   npm run build
+
+9. Para subir para GitHub/Vercel:
+
+   git add .
+   git commit -m "v1.5.3 login proprio estavel"
+   git push
+
+10. Espere o novo deployment da Vercel ficar Ready e teste o login online.
+
+OBSERVAÇÃO
+----------
+Não rode npm audit fix --force durante esta atualização. As vulnerabilidades
+reportadas pelo npm serão revisadas em uma etapa controlada, sem atualizar
+bibliotecas principais de forma destrutiva.

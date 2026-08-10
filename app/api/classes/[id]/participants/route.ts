@@ -14,7 +14,7 @@ export async function GET(_:Request,{params}:{params:Promise<{id:string}>}){
     id,status,created_at,student_id,
     students!reservations_student_id_fkey(
       id,belt_id,degrees,
-      profiles!students_id_fkey(name,email,phone,avatar_url),
+      profiles!students_id_fkey(name,username,contact_email,phone,avatar_url),
       belts(name)
     )
   `).eq('class_id',id).order('created_at');
@@ -24,7 +24,7 @@ export async function GET(_:Request,{params}:{params:Promise<{id:string}>}){
   const attendanceMap=new Map((attendance||[]).map((a:any)=>[a.student_id,a]));
   const rows=(reservations||[]).filter((r:any)=>r.status==='reserved').map((r:any)=>({
     id:r.id,student_id:r.student_id,status:r.status,created_at:r.created_at,
-    name:r.students?.profiles?.name||'Aluno',email:r.students?.profiles?.email||'',phone:r.students?.profiles?.phone||'',
+    name:r.students?.profiles?.name||'Aluno',login:r.students?.profiles?.username||'',contact_email:r.students?.profiles?.contact_email||'',phone:r.students?.profiles?.phone||'',
     avatar_url:r.students?.profiles?.avatar_url||null,belt:r.students?.belts?.name||'-',degrees:r.students?.degrees||0,
     present:attendanceMap.has(r.student_id),checked_in_at:attendanceMap.get(r.student_id)?.checked_in_at||null
   }));

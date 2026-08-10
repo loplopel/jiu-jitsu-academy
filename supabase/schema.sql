@@ -7,7 +7,7 @@ create type public.payment_status as enum ('pending','paid','overdue','cancelled
 
 create table public.profiles (
  id uuid primary key references auth.users(id) on delete cascade,
- role public.user_role not null default 'aluno', name text not null, email text not null,
+ role public.user_role not null default 'aluno', name text not null, email text not null, username text not null unique, contact_email text,
  phone text, avatar_url text, active boolean not null default true,
  permissions jsonb not null default '{}'::jsonb, created_at timestamptz not null default now(), updated_at timestamptz not null default now()
 );
@@ -31,7 +31,7 @@ create table public.student_achievements(id uuid primary key default gen_random_
 create table public.iea_scores(id uuid primary key default gen_random_uuid(),student_id uuid references public.students(id),score numeric(5,2) not null,frequency numeric(5,2),streak numeric(5,2),training_time numeric(5,2),events numeric(5,2),competitions numeric(5,2),graduation numeric(5,2),attendance numeric(5,2),calculated_at timestamptz default now());
 create table public.notifications(id uuid primary key default gen_random_uuid(),user_id uuid references public.profiles(id) on delete cascade,title text not null,message text not null,kind text not null default 'general',read_at timestamptz,created_at timestamptz default now());
 
-create or replace function public.handle_new_user() returns trigger language plpgsql security definer set search_path=public as $$ begin insert into public.profiles(id,name,email,role) values(new.id,coalesce(new.raw_user_meta_data->>'name',split_part(new.email,'@',1)),new.email,'aluno'); return new; end; $$;
+create or replace function public.handle_new_user() returns trigger language plpgsql security definer set search_path=public as $$ begin insert into public.profiles(id,name,email,username,contact_email,role) values(new.id,coalesce(new.raw_user_meta_data->>'name',split_part(new.email,'@',1)),new.email,coalesce(nullif(new.raw_user_meta_data->>'username',''),'user'||substring(replace(new.id::text,'-',''),1,8)),nullif(new.raw_user_meta_data->>'contact_email',''),coalesce((new.raw_user_meta_data->>'role')::public.user_role,'aluno'::public.user_role)); return new; end; $$;
 create trigger on_auth_user_created after insert on auth.users for each row execute procedure public.handle_new_user();
 
 create or replace function public.is_admin() returns boolean language sql stable security definer set search_path=public as $$ select exists(select 1 from profiles where id=auth.uid() and role='admin' and active); $$;

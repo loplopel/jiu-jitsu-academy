@@ -1,0 +1,75 @@
+JIU-JITSU ACADEMY v1.5.2 - INSTALAÇÃO
+=====================================
+
+IMPORTANTE
+1. Preserve o arquivo .env.local da versão atual.
+2. Não apague o projeto Supabase existente.
+3. Esta atualização NÃO apaga professores, alunos, aulas, planos ou histórico.
+
+PASSO 1 - SUBSTITUIR ARQUIVOS
+Extraia o ZIP e substitua os arquivos da pasta atual do projeto.
+Mantenha seu .env.local.
+
+PASSO 2 - MIGRAÇÃO OBRIGATÓRIA NO SUPABASE
+Abra:
+  supabase/v1.5.2-login-senha.sql
+
+No Supabase:
+  SQL Editor > New query > cole todo o arquivo > Run
+
+A migração:
+- adiciona username e contact_email;
+- cria login automático para usuários já existentes;
+- mantém o e-mail antigo apenas como contato;
+- não altera a senha atual dos usuários existentes.
+
+PASSO 3 - LOGIN DO ADMIN ANTIGO
+Se seu e-mail antigo era:
+  rodrigovbfranco@gmail.com
+
+o login criado automaticamente tende a ser:
+  rodrigovbfranco
+
+Use esse login + sua senha atual.
+Como segurança de transição, a v1.5.2 também aceita temporariamente o e-mail antigo no campo Login para usuários já existentes.
+
+PASSO 4 - RODAR LOCAL
+No terminal:
+  npm install
+  Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+  npm run dev
+
+Abra:
+  http://localhost:3000/login
+
+PASSO 5 - TESTE
+1. Entre como Administrador.
+2. Abra Usuários e acessos.
+3. Confira os logins automáticos dos usuários antigos.
+4. Se desejar, altere o login do Admin.
+5. Crie um usuário de teste com login e senha.
+6. Saia e entre usando o novo login.
+
+PASSO 6 - NOVOS ALUNOS E PROFESSORES
+No cadastro agora existem:
+- Login
+- Senha inicial
+- E-mail de contato (opcional)
+
+Nenhum e-mail é enviado.
+
+PASSO 7 - REDEFINIR SENHA
+Administrador Geral:
+  Usuários e acessos > ícone de chave > informe nova senha.
+
+Também há botão de redefinição na listagem de Alunos e Professores.
+
+PASSO 8 - SUBIR PARA GITHUB/VERCEL
+Depois dos testes:
+  git add .
+  git commit -m "v1.5.2 login proprio e senha administrada"
+  git push
+
+A Vercel atualizará automaticamente.
+
+NÃO É MAIS NECESSÁRIO CONFIGURAR SMTP PARA LOGIN/SENHA.

@@ -10,7 +10,7 @@ export async function GET(){
     admin.from('belts').select('id,name,sort_order').order('sort_order'),
     admin.from('categories').select('id,name,active').eq('active',true).order('name'),
     admin.from('plans').select('id,name,amount,billing_cycle,active').eq('active',true).order('name'),
-    admin.from('profiles').select('id,name,email').eq('role','professor').eq('active',true).order('name')
+    admin.from('profiles').select('id,name,username,contact_email').eq('role','professor').eq('active',true).order('name')
   ]);
   const err=belts.error||categories.error||plans.error||professors.error;
   if(err)return NextResponse.json({error:err.message},{status:500});

@@ -1,4 +1,72 @@
-'use client';
-import Link from 'next/link';import {useState} from 'react';import {useRouter} from 'next/navigation';import {LockKeyhole} from 'lucide-react';import {getSupabaseBrowserClient} from '@/lib/supabase-browser';
-export default function Login(){const router=useRouter();const[email,setEmail]=useState('');const[password,setPassword]=useState('');const[error,setError]=useState('');const[loading,setLoading]=useState(false);async function submit(e:React.FormEvent){e.preventDefault();setLoading(true);setError('');const sb=getSupabaseBrowserClient();if(!sb){setError('Supabase não configurado.');setLoading(false);return;}const{error}=await sb.auth.signInWithPassword({email,password});if(error){setError('E-mail ou senha inválidos.');setLoading(false);return;}const{data:{user}}=await sb.auth.getUser();const{data:p}=await sb.from('profiles').select('role').eq('id',user?.id||'').single();const next=new URLSearchParams(window.location.search).get('next');router.push(next&&next.startsWith('/')&&!next.startsWith('//')?next:(p?.role==='admin'?'/dashboard':p?.role==='professor'?'/professor':'/meu-painel'))}
-return <main className="auth-shell"><section className="auth-art"><span className="pill">CONEXÃO • DISCIPLINA • EVOLUÇÃO</span><h1>Seu time conectado dentro e fora do tatame.</h1><p className="muted">Aulas, presença por QR Code, mensalidades, graduações, eventos, rankings e evolução esportiva.</p></section><section className="auth-panel"><div className="card auth-box"><div className="brand"><img src="/logo-conexao-paulista.png" className="logo-login" alt="Conexão Paulista"/><div>CONEXÃO PAULISTA<br/><span style={{color:'#fb923c'}}>JIU-JITSU</span></div></div><div style={{margin:'26px 0 20px'}}><h2 style={{marginBottom:6}}>Bem-vindo de volta</h2><div className="muted">Entre com seu usuário para acessar o sistema.</div></div><form className="form-stack" onSubmit={submit}><div><label className="label">E-mail</label><input className="input" type="email" value={email} onChange={e=>setEmail(e.target.value)} required/></div><div><label className="label">Senha</label><input className="input" type="password" value={password} onChange={e=>setPassword(e.target.value)} required/></div>{error&&<div className="notice error">{error}</div>}<button className="btn btn-primary" disabled={loading}>{loading?'Entrando...':'Entrar no sistema'}</button><Link href="/forgot-password" style={{textAlign:'center',fontSize:13,color:'#fb923c'}}><LockKeyhole size={13} style={{verticalAlign:'middle',marginRight:5}}/>Esqueci minha senha</Link></form></div></section></main>}
+import Image from 'next/image';
+
+export default async function Login({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; next?: string }>;
+}) {
+  const params = await searchParams;
+  return (
+    <main className="auth-shell">
+      <section className="auth-art">
+        <span className="pill">CONEXÃO • DISCIPLINA • EVOLUÇÃO</span>
+        <h1>Seu time conectado dentro e fora do tatame.</h1>
+        <p className="muted">
+          Aulas, presença por QR Code, mensalidades, graduações, eventos, rankings e evolução esportiva.
+        </p>
+      </section>
+
+      <section className="auth-panel">
+        <div className="card auth-box">
+          <div className="brand">
+            <Image src="/logo-conexao-paulista.png" width={82} height={82} className="logo-login" alt="Conexão Paulista" priority />
+            <div>
+              CONEXÃO PAULISTA<br />
+              <span style={{ color: '#fb923c' }}>JIU-JITSU</span>
+            </div>
+          </div>
+
+          <div style={{ margin: '26px 0 20px' }}>
+            <h2 style={{ marginBottom: 6 }}>Bem-vindo de volta</h2>
+            <div className="muted">Entre com o login criado pela academia.</div>
+          </div>
+
+          <form className="form-stack" action="/api/auth/login" method="post">
+            {params.next ? <input type="hidden" name="next" value={params.next} /> : null}
+            <div>
+              <label className="label" htmlFor="login">Login</label>
+              <input
+                id="login"
+                name="login"
+                className="input"
+                autoComplete="username"
+                placeholder="Ex.: rodrigo"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="label" htmlFor="password">Senha</label>
+              <input
+                id="password"
+                name="password"
+                className="input"
+                type="password"
+                autoComplete="current-password"
+                required
+              />
+            </div>
+
+            {params.error ? <div className="notice error">{params.error}</div> : null}
+
+            <button className="btn btn-primary" type="submit">Entrar no sistema</button>
+
+            <div className="muted" style={{ textAlign: 'center', fontSize: 12 }}>
+              Esqueceu a senha? Procure o administrador da academia.
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+  );
+}

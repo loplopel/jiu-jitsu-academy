@@ -1,18 +1,18 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
 import {AppShell} from '@/components/app-shell';
-import {Plus,RefreshCw,Pencil,Search,Upload,UserRound,Filter,Trash2,Mail} from 'lucide-react';
+import {Plus,RefreshCw,Pencil,Search,Upload,UserRound,Filter,Trash2,KeyRound} from 'lucide-react';
 
-type Opt={id:string;name:string;amount?:number;billing_cycle?:string;email?:string};
+type Opt={id:string;name:string;amount?:number;billing_cycle?:string;contact_email?:string};
 type Row={
   id:string;cpf?:string;whatsapp?:string;birth_date?:string;sex?:string;weight?:number;height?:number;degrees?:number;start_date?:string;last_graduation_date?:string;notes?:string;emergency_contact?:string;emergency_name?:string;emergency_phone?:string;emergency_relation?:string;injuries?:string;status?:string;category_id?:string;responsible_professor_id?:string;belt_id?:string;plan_id?:string;
-  profiles?:{name?:string;email?:string;phone?:string;avatar_url?:string}|null;belts?:{name?:string}|null;plans?:{name?:string;amount?:number}|null;categories?:{name?:string}|null;responsible?:{name?:string}|null
+  profiles?:{name?:string;username?:string;contact_email?:string;phone?:string;avatar_url?:string}|null;belts?:{name?:string}|null;plans?:{name?:string;amount?:number}|null;categories?:{name?:string}|null;responsible?:{name?:string}|null
 };
-const empty={name:'',email:'',phone:'',whatsapp:'',avatar_url:'',cpf:'',birth_date:'',sex:'',weight:'',height:'',category_id:'',responsible_professor_id:'',start_date:'',belt_id:'',degrees:0,last_graduation_date:'',notes:'',emergency_contact:'',emergency_name:'',emergency_phone:'',emergency_relation:'',injuries:'',plan_id:'',status:'ativo'};
+const empty={name:'',username:'',password:'',contact_email:'',phone:'',whatsapp:'',avatar_url:'',cpf:'',birth_date:'',sex:'',weight:'',height:'',category_id:'',responsible_professor_id:'',start_date:'',belt_id:'',degrees:0,last_graduation_date:'',notes:'',emergency_contact:'',emergency_name:'',emergency_phone:'',emergency_relation:'',injuries:'',plan_id:'',status:'ativo'};
 
 export default function Page(){
   const[rows,setRows]=useState<Row[]>([]); const[opts,setOpts]=useState<{belts:Opt[];categories:Opt[];plans:Opt[];professors:Opt[]}>({belts:[],categories:[],plans:[],professors:[]});
-  const[open,setOpen]=useState(false); const[editing,setEditing]=useState<string|null>(null); const[msg,setMsg]=useState(''); const[form,setForm]=useState<any>(empty); const[photo,setPhoto]=useState<File|null>(null); const[saving,setSaving]=useState(false);
+  const[open,setOpen]=useState(false); const[editing,setEditing]=useState<string|null>(null); const[isAdmin,setIsAdmin]=useState(false); const[msg,setMsg]=useState(''); const[form,setForm]=useState<any>(empty); const[photo,setPhoto]=useState<File|null>(null); const[saving,setSaving]=useState(false);
   const[q,setQ]=useState(''); const[status,setStatus]=useState('todos'); const[belt,setBelt]=useState('todos'); const[plan,setPlan]=useState('todos');
 
   async function load(){
@@ -21,16 +21,16 @@ export default function Page(){
     if(r.ok)setRows(j); else setMsg(j.error||'Falha ao carregar alunos.');
     if(o.ok)setOpts(jo); else setMsg(jo.error||'Falha ao carregar cadastros auxiliares.');
   }
-  useEffect(()=>{void load()},[]);
+  useEffect(()=>{void load();void(async()=>{const {getSupabaseBrowserClient}=await import('@/lib/supabase-browser');const sb=getSupabaseBrowserClient();if(!sb)return;const {data:{user}}=await sb.auth.getUser();if(!user)return;const {data}=await sb.from('profiles').select('role').eq('id',user.id).single();setIsAdmin(data?.role==='admin')})()},[]);
 
   const filtered=useMemo(()=>rows.filter(x=>{
-    const text=`${x.profiles?.name||''} ${x.profiles?.email||''} ${x.cpf||''} ${x.profiles?.phone||''}`.toLowerCase();
+    const text=`${x.profiles?.name||''} ${x.profiles?.username||''} ${x.profiles?.contact_email||''} ${x.cpf||''} ${x.profiles?.phone||''}`.toLowerCase();
     return(!q||text.includes(q.toLowerCase()))&&(status==='todos'||x.status===status)&&(belt==='todos'||x.belt_id===belt)&&(plan==='todos'||x.plan_id===plan);
   }),[rows,q,status,belt,plan]);
 
   function beginNew(){setEditing(null);setForm({...empty,start_date:new Date().toISOString().slice(0,10)});setPhoto(null);setMsg('');setOpen(true)}
   function edit(x:Row){setEditing(x.id);setPhoto(null);setForm({
-    name:x.profiles?.name||'',email:x.profiles?.email||'',phone:x.profiles?.phone||'',whatsapp:x.whatsapp||'',avatar_url:x.profiles?.avatar_url||'',cpf:x.cpf||'',birth_date:x.birth_date||'',sex:x.sex||'',weight:x.weight??'',height:x.height??'',category_id:x.category_id||'',responsible_professor_id:x.responsible_professor_id||'',start_date:x.start_date||'',belt_id:x.belt_id||'',degrees:x.degrees??0,last_graduation_date:x.last_graduation_date||'',notes:x.notes||'',emergency_contact:x.emergency_contact||'',emergency_name:x.emergency_name||'',emergency_phone:x.emergency_phone||'',emergency_relation:x.emergency_relation||'',injuries:x.injuries||'',plan_id:x.plan_id||'',status:x.status||'ativo'
+    name:x.profiles?.name||'',username:x.profiles?.username||'',password:'',contact_email:x.profiles?.contact_email||'',phone:x.profiles?.phone||'',whatsapp:x.whatsapp||'',avatar_url:x.profiles?.avatar_url||'',cpf:x.cpf||'',birth_date:x.birth_date||'',sex:x.sex||'',weight:x.weight??'',height:x.height??'',category_id:x.category_id||'',responsible_professor_id:x.responsible_professor_id||'',start_date:x.start_date||'',belt_id:x.belt_id||'',degrees:x.degrees??0,last_graduation_date:x.last_graduation_date||'',notes:x.notes||'',emergency_contact:x.emergency_contact||'',emergency_name:x.emergency_name||'',emergency_phone:x.emergency_phone||'',emergency_relation:x.emergency_relation||'',injuries:x.injuries||'',plan_id:x.plan_id||'',status:x.status||'ativo'
   });setOpen(true)}
 
   async function uploadPhoto(studentId:string){
@@ -51,15 +51,12 @@ export default function Page(){
     await load();
   }
 
-  async function resendAccess(x:Row){
-    const email=x.profiles?.email;
-    if(!email){setMsg('Este aluno não possui e-mail cadastrado.');return;}
-    const {getSupabaseBrowserClient}=await import('@/lib/supabase-browser');
-    const sb=getSupabaseBrowserClient();
-    if(!sb){setMsg('Supabase não configurado.');return;}
-    setMsg('Enviando novo link de acesso...');
-    const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:`${window.location.origin}/update-password`});
-    setMsg(error?error.message:'Novo link enviado para o e-mail do aluno.');
+  async function resetAccess(x:Row){
+    const password=window.prompt(`Defina uma nova senha para ${x.profiles?.name||'o aluno'} (mínimo 6 caracteres):`);
+    if(!password)return;
+    const r=await fetch('/api/admin/access',{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({id:x.id,password})});
+    const j=await r.json();
+    setMsg(r.ok?'Senha do aluno redefinida com sucesso.':j.error||'Falha ao redefinir senha.');
   }
 
   async function save(e:React.FormEvent){
@@ -69,7 +66,7 @@ export default function Page(){
       const r=await fetch('/api/students',{method:editing?'PATCH':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)}); const j=await r.json();
       if(!r.ok)throw new Error(j.error||'Falha ao salvar aluno');
       const id=editing||j.id; if(photo&&id)await uploadPhoto(id);
-      setMsg(editing?'Aluno atualizado com sucesso.':'Aluno cadastrado e convite enviado por e-mail para criação da senha.'); setOpen(false); setEditing(null); setForm(empty); setPhoto(null); await load();
+      setMsg(editing?'Aluno atualizado com sucesso.':`Aluno cadastrado. Login: ${j.username}`); setOpen(false); setEditing(null); setForm(empty); setPhoto(null); await load();
     }catch(err:any){setMsg(err.message||'Falha ao salvar aluno.')}finally{setSaving(false)}
   }
 
@@ -78,9 +75,9 @@ export default function Page(){
     {msg&&<div className={msg.includes('sucesso')||msg.includes('convite')?'notice success':'notice error'} style={{marginBottom:14}}>{msg}</div>}
 
     {open&&<form className="card admin-form" onSubmit={save}>
-      <div className="student-form-heading"><div><strong>{editing?'Editar aluno':'Novo aluno'}</strong><div className="muted small-text">Os campos podem ser atualizados depois. O e-mail cria o acesso individual do aluno.</div></div>{form.avatar_url?<img className="student-avatar-lg" src={form.avatar_url} alt="Foto do aluno"/>:<div className="student-avatar-placeholder"><UserRound size={30}/></div>}</div>
+      <div className="student-form-heading"><div><strong>{editing?'Editar aluno':'Novo aluno'}</strong><div className="muted small-text">O acesso é criado pela academia com login e senha. E-mail é apenas contato opcional.</div></div>{form.avatar_url?<img className="student-avatar-lg" src={form.avatar_url} alt="Foto do aluno"/>:<div className="student-avatar-placeholder"><UserRound size={30}/></div>}</div>
       <div className="form-section-title">Dados pessoais</div><div className="grid grid-3">
-        <F l="Nome" v={form.name} set={v=>setForm({...form,name:v})} req/><F l="E-mail de acesso" v={form.email} set={v=>setForm({...form,email:v})} type="email" req disabled={!!editing}/><F l="CPF" v={form.cpf} set={v=>setForm({...form,cpf:v})}/>
+        <F l="Nome" v={form.name} set={v=>setForm({...form,name:v})} req/>{!editing&&<><F l="Login" v={form.username} set={v=>setForm({...form,username:v})} req/><F l="Senha inicial" v={form.password} set={v=>setForm({...form,password:v})} type="password" req/></>}<F l="E-mail de contato (opcional)" v={form.contact_email} set={v=>setForm({...form,contact_email:v})} type="email"/><F l="CPF" v={form.cpf} set={v=>setForm({...form,cpf:v})}/>
         <F l="Telefone" v={form.phone} set={v=>setForm({...form,phone:v})}/><F l="WhatsApp" v={form.whatsapp} set={v=>setForm({...form,whatsapp:v})}/><F l="Data de nascimento" v={form.birth_date} set={v=>setForm({...form,birth_date:v})} type="date"/>
         <div><label className="label">Sexo</label><select className="input" value={form.sex} onChange={e=>setForm({...form,sex:e.target.value})}><option value="">Não informado</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option><option value="Outro">Outro</option></select></div>
         <F l="Peso (kg)" v={form.weight} set={v=>setForm({...form,weight:v})} type="number" step="0.1"/><F l="Altura (cm)" v={form.height} set={v=>setForm({...form,height:v})} type="number" step="0.1"/>
@@ -97,12 +94,12 @@ export default function Page(){
         <F l="Nome do contato de emergência" v={form.emergency_name} set={v=>setForm({...form,emergency_name:v})}/><F l="Telefone de emergência" v={form.emergency_phone} set={v=>setForm({...form,emergency_phone:v})}/><F l="Parentesco / relação" v={form.emergency_relation} set={v=>setForm({...form,emergency_relation:v})}/>
         <div className="grid-span-3"><label className="label">Lesões / restrições</label><textarea className="input" rows={2} value={form.injuries} onChange={e=>setForm({...form,injuries:e.target.value})}/></div><div className="grid-span-3"><label className="label">Observações</label><textarea className="input" rows={3} value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})}/></div>
       </div>
-      <div className="toolbar" style={{marginTop:16}}><button className="btn btn-primary" disabled={saving}>{saving?'Salvando...':editing?'Salvar alterações':'Cadastrar e enviar convite'}</button><button type="button" className="btn btn-secondary" onClick={()=>setOpen(false)}>Cancelar</button></div>
+      <div className="toolbar" style={{marginTop:16}}><button className="btn btn-primary" disabled={saving}>{saving?'Salvando...':editing?'Salvar alterações':'Cadastrar aluno'}</button><button type="button" className="btn btn-secondary" onClick={()=>setOpen(false)}>Cancelar</button></div>
     </form>}
 
-    <div className="card" style={{padding:18}}><div className="student-toolbar"><div className="search-wrap"><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar por nome, CPF, e-mail ou telefone"/></div><div className="filter-group"><Filter size={15}/><select className="input compact" value={status} onChange={e=>setStatus(e.target.value)}><option value="todos">Todos os status</option><option value="ativo">Ativos</option><option value="inativo">Inativos</option><option value="bloqueado">Bloqueados</option></select><select className="input compact" value={belt} onChange={e=>setBelt(e.target.value)}><option value="todos">Todas as faixas</option>{opts.belts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select><select className="input compact" value={plan} onChange={e=>setPlan(e.target.value)}><option value="todos">Todos os planos</option>{opts.plans.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div><button className="btn btn-secondary" onClick={load}><RefreshCw size={14}/> Atualizar</button></div>
+    <div className="card" style={{padding:18}}><div className="student-toolbar"><div className="search-wrap"><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar por nome, login, CPF ou telefone"/></div><div className="filter-group"><Filter size={15}/><select className="input compact" value={status} onChange={e=>setStatus(e.target.value)}><option value="todos">Todos os status</option><option value="ativo">Ativos</option><option value="inativo">Inativos</option><option value="bloqueado">Bloqueados</option></select><select className="input compact" value={belt} onChange={e=>setBelt(e.target.value)}><option value="todos">Todas as faixas</option>{opts.belts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select><select className="input compact" value={plan} onChange={e=>setPlan(e.target.value)}><option value="todos">Todos os planos</option>{opts.plans.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div><button className="btn btn-secondary" onClick={load}><RefreshCw size={14}/> Atualizar</button></div>
       <div className="student-summary"><span><strong>{filtered.length}</strong> exibido(s)</span><span><strong>{rows.filter(x=>x.status==='ativo').length}</strong> ativo(s)</span><span><strong>{rows.filter(x=>x.status==='bloqueado').length}</strong> bloqueado(s)</span></div>
-      {!filtered.length?<div className="empty-state">Nenhum aluno encontrado. Clique em “Novo aluno” para iniciar a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Contato</th><th>Faixa</th><th>Professor</th><th>Plano</th><th>Início</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(x=><tr key={x.id}><td><div className="student-cell">{x.profiles?.avatar_url?<img src={x.profiles.avatar_url} className="student-avatar" alt=""/>:<div className="student-avatar mini"><UserRound size={16}/></div>}<div><strong>{x.profiles?.name||'-'}</strong><div className="muted small-text">{x.cpf||x.profiles?.email||'-'}</div></div></div></td><td>{x.whatsapp||x.profiles?.phone||'-'}<div className="muted small-text">{x.profiles?.email}</div></td><td>{x.belts?.name||'-'} <span className="muted">• {x.degrees??0} grau(s)</span></td><td>{x.responsible?.name||'-'}</td><td>{x.plans?.name||'-'}</td><td>{formatDate(x.start_date)}</td><td><span className={`status-badge status-${x.status}`}>{x.status||'-'}</span></td><td><div style={{display:'flex',gap:6}}><button className="icon-btn" onClick={()=>edit(x)} title="Editar aluno"><Pencil size={15}/></button><button className="icon-btn" onClick={()=>resendAccess(x)} title="Reenviar link de acesso"><Mail size={15}/></button><button className="icon-btn danger" onClick={()=>removeStudent(x)} title="Excluir aluno"><Trash2 size={15}/></button></div></td></tr>)}</tbody></table></div>}
+      {!filtered.length?<div className="empty-state">Nenhum aluno encontrado. Clique em “Novo aluno” para iniciar a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Contato</th><th>Faixa</th><th>Professor</th><th>Plano</th><th>Início</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(x=><tr key={x.id}><td><div className="student-cell">{x.profiles?.avatar_url?<img src={x.profiles.avatar_url} className="student-avatar" alt=""/>:<div className="student-avatar mini"><UserRound size={16}/></div>}<div><strong>{x.profiles?.name||'-'}</strong><div className="muted small-text">{x.cpf||`Login: ${x.profiles?.username||'-'}`}</div></div></div></td><td>{x.whatsapp||x.profiles?.phone||'-'}<div className="muted small-text">{x.profiles?.contact_email||''}</div></td><td>{x.belts?.name||'-'} <span className="muted">• {x.degrees??0} grau(s)</span></td><td>{x.responsible?.name||'-'}</td><td>{x.plans?.name||'-'}</td><td>{formatDate(x.start_date)}</td><td><span className={`status-badge status-${x.status}`}>{x.status||'-'}</span></td><td><div style={{display:'flex',gap:6}}><button className="icon-btn" onClick={()=>edit(x)} title="Editar aluno"><Pencil size={15}/></button>{isAdmin&&<><button className="icon-btn" onClick={()=>resetAccess(x)} title="Redefinir senha"><KeyRound size={15}/></button><button className="icon-btn danger" onClick={()=>removeStudent(x)} title="Excluir aluno"><Trash2 size={15}/></button></>}</div></td></tr>)}</tbody></table></div>}
     </div>
   </AppShell>
 }
