@@ -2,9 +2,19 @@
 
 Sistema PWA em Next.js + Supabase para gestão de academia de Jiu-Jitsu.
 
-## Versão atual: 1.5.2
+## Versão atual: 1.6.0
 
 A autenticação foi simplificada: **login + senha administrados pela academia**. Não há convite por e-mail nem recuperação por e-mail.
+
+## Novidades da v1.6
+- Financeiro completo com geração individual e mensal em lote.
+- Dia de vencimento por aluno.
+- Baixa com forma de pagamento, desconto, acréscimo e observação.
+- Indicadores de recebido, a receber, vencido e inadimplentes.
+- Histórico financeiro visível para o aluno.
+- Regra opcional de bloqueio de novas reservas por inadimplência.
+
+Antes de usar o Financeiro da v1.6, execute `supabase/v1.6-financeiro.sql` no SQL Editor do Supabase.
 
 ### Como funciona o acesso
 - O Administrador Geral cria o usuário.

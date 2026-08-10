@@ -1,0 +1,19 @@
+JIU-JITSU ACADEMY v1.6 — INSTALAÇÃO
+
+1) Preserve seu .env.local atual.
+2) Substitua os arquivos do projeto pelos arquivos da v1.6.
+3) Supabase > SQL Editor > New Query.
+4) Execute TODO o arquivo supabase/v1.6-financeiro.sql.
+5) No VS Code:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run dev
+6) Teste login próprio.
+7) Teste Alunos > editar/cadastrar e informe Dia de vencimento.
+8) Financeiro > escolha competência > Gerar mês.
+9) Faça baixa de uma mensalidade e teste Reabrir.
+10) Entre como aluno e confira Financeiro/Mensalidade.
+11) Rode npm run build.
+12) Se estiver OK: git add . / git commit -m "v1.6 financeiro completo" / git push.
+
+IMPORTANTE: o SQL é aditivo e não apaga alunos, professores, planos ou mensalidades existentes.
