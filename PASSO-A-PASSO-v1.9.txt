@@ -1,0 +1,25 @@
+JIU-JITSU ACADEMY v1.9 — COMUNICAÇÃO E NOTIFICAÇÕES
+
+1. Preserve .env.local e .git da sua pasta oficial.
+2. Substitua os arquivos do projeto pelos arquivos deste pacote.
+3. Supabase > SQL Editor > New Query.
+4. Execute todo o conteúdo de supabase/v1.9-comunicacao.sql.
+5. No VS Code:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run dev
+6. Teste /notificacoes como Admin:
+   - envie para todos;
+   - envie só para alunos;
+   - envie para um usuário;
+   - configure lembrete de aula/evento;
+   - clique Processar agora.
+7. Entre como Professor e Aluno e confirme que cada um vê só sua caixa de avisos.
+8. Confira o contador no sino do cabeçalho.
+9. Rode npm run build.
+10. Se passar:
+   git add .
+   git commit -m "v1.9 comunicacao e notificacoes"
+   git push
+
+OBS.: esta versão usa notificações internas do aplicativo/PWA. Não exige SMTP nem e-mail.

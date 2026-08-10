@@ -31,7 +31,6 @@ const menu:Record<Role,MenuItem[]> = {
     {href:'/check-in',label:'Presença / QR',icon:ScanLine,mobile:true},
     {href:'/ranking',label:'Ranking e conquistas',icon:ChartNoAxesCombined,mobile:true},
     {href:'/graduacoes',label:'Graduações',icon:Medal},
-    {href:'/ranking',label:'Ranking e conquistas',icon:Award},
     {href:'/eventos',label:'Eventos',icon:Trophy},
     {href:'/notificacoes',label:'Notificações',icon:Bell},
     {href:'/perfil',label:'Meu perfil',icon:UserCircle},
@@ -51,12 +50,12 @@ const labels:Record<Role,string>={admin:'Administrador Geral',professor:'Profess
 
 export function AppShell({children}:{children:React.ReactNode}){
   const pathname=usePathname(); const router=useRouter();
-  const [role,setRole]=useState<Role>('aluno'); const [name,setName]=useState('Usuário'); const [avatar,setAvatar]=useState(''); const [ready,setReady]=useState(false);
+  const [role,setRole]=useState<Role>('aluno'); const [name,setName]=useState('Usuário'); const [avatar,setAvatar]=useState(''); const [ready,setReady]=useState(false); const [unread,setUnread]=useState(0);
   useEffect(()=>{void(async()=>{
     const sb=getSupabaseBrowserClient(); if(!sb){setReady(true);return;}
     const {data:{user}}=await sb.auth.getUser(); if(!user){router.push('/login');return;}
     const {data}=await sb.from('profiles').select('role,name,avatar_url').eq('id',user.id).single();
-    if(data?.role)setRole(data.role as Role); if(data?.name)setName(data.name); if(data?.avatar_url)setAvatar(data.avatar_url); setReady(true);
+    if(data?.role)setRole(data.role as Role); if(data?.name)setName(data.name); if(data?.avatar_url)setAvatar(data.avatar_url); try{const r=await fetch('/api/notifications',{cache:'no-store'});if(r.ok){const j=await r.json();setUnread(j.unread||0)}}catch{} setReady(true);
   })()},[router]);
   const items=useMemo(()=>menu[role],[role]);
   const mobileItems=useMemo(()=>items.filter(i=>i.mobile).slice(0,5),[items]);
@@ -75,7 +74,7 @@ export function AppShell({children}:{children:React.ReactNode}){
     <div className="app-main">
       <header className="topbar">
         <div className="topbar-user">{avatar?<img src={avatar} className="topbar-avatar" alt=""/>:<div className="topbar-avatar placeholder">{name.slice(0,1).toUpperCase()}</div>}<div><strong>{name}</strong><div className="muted topbar-sub">{labels[role]} • Conexão Paulista</div></div></div>
-        <div className="toolbar"><Link href="/notificacoes" className="btn btn-secondary icon-only" aria-label="Notificações"><Bell size={16}/></Link><Link href="/perfil" className="pill profile-pill">Meu perfil</Link></div>
+        <div className="toolbar"><Link href="/notificacoes" className="btn btn-secondary icon-only notification-bell" aria-label="Notificações"><Bell size={16}/>{unread>0&&<span className="notification-badge">{unread>99?'99+':unread}</span>}</Link><Link href="/perfil" className="pill profile-pill">Meu perfil</Link></div>
       </header>
       <main className="content">{children}</main>
       <nav className="mobile-bottom">{mobileItems.map(({href,label,icon:Icon})=><Link key={href} className={`mobile-bottom-item ${pathname===href?'active':''}`} href={href}><Icon size={20}/><span>{label}</span></Link>)}</nav>
