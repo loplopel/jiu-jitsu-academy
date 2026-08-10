@@ -1,2 +1,0 @@
-import Link from 'next/link';
-export default function Page(){return <main className="auth-shell" style={{display:'grid',placeItems:'center'}}><div className="card auth-box"><h2>Senha administrada pela academia</h2><p className="muted" style={{margin:'12px 0 20px'}}>A criação e a redefinição de senhas agora são feitas pelo Administrador Geral.</p><Link className="btn btn-primary" href="/login">Ir para o login</Link></div></main>}

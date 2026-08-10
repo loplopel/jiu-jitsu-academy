@@ -31,3 +31,12 @@
 
 /* v1.9 comunicação */
 .notification-list{display:grid;gap:10px;margin-top:16px}.notification-item{display:flex;gap:14px;padding:16px;border:1px solid var(--border);border-radius:16px;background:var(--card)}.notification-item.unread{border-left:4px solid var(--primary);background:color-mix(in srgb,var(--primary) 5%,var(--card))}.notification-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:var(--surface-2);flex:0 0 auto}.notification-body{min-width:0;flex:1}.notification-body h3{margin:8px 0 4px}.notification-body p{margin:0 0 10px;white-space:pre-wrap}.notification-meta{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.setting-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--border)}.setting-row span{display:grid;gap:2px}.notification-bell{position:relative}.notification-badge{position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 5px;display:grid;place-items:center;border-radius:999px;background:var(--primary);color:white;font-size:10px;font-weight:800;border:2px solid var(--bg)}
+
+/* v2.0: sessão e navegação mobile */
+.mobile-logout{display:none}
+@media (max-width: 820px){
+  .mobile-logout{display:inline-flex!important}
+  .profile-pill{display:none}
+  .mobile-bottom{padding-bottom:max(8px,env(safe-area-inset-bottom))}
+  .content{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+}

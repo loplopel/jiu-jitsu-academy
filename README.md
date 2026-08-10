@@ -1,33 +1,50 @@
-# Conexão Paulista Jiu-Jitsu — v1.7
+# Conexão Paulista Jiu-Jitsu — v2.0
 
-Aplicativo PWA para gestão esportiva da equipe Conexão Paulista.
+PWA de gestão esportiva para equipe de Jiu-Jitsu, com três perfis: Administrador Geral, Professor e Aluno.
 
-## Objetivo
-O sistema é voltado à rotina de professores e alunos: cadastro, aulas, reservas, QR Code, presença, graduação, evolução, eventos, ranking e relatórios esportivos. O módulo financeiro foi retirado da experiência do aplicativo.
+## Recursos
+- Login próprio (usuário + senha administrados pela academia)
+- Perfis e permissões por função
+- Alunos e professores
+- Aulas, reservas e capacidade
+- QR Code dinâmico de 30 segundos e uso único
+- Presença com IP, dispositivo e localização quando autorizada
+- Graduações, histórico e IEA
+- Ranking, conquistas e aluno do mês
+- Eventos, seminários e competições
+- Notificações internas e lembretes
+- Relatórios PDF, Excel e CSV
+- PWA Android/iPhone com offline controlado
 
-## Perfis
-- Administrador Geral: alunos, professores, horários, categorias, aulas, graduações, eventos, relatórios, notificações, usuários e configurações.
-- Professor: próprias aulas, alunos vinculados, QR/presença, evolução, graduações, eventos e estatísticas.
-- Aluno: agenda, reservas, check-in, evolução, graduação, eventos, ranking e perfil.
-
-## v1.7 — Evolução e IEA
-O IEA (Índice de Evolução do Atleta) varia de 0 a 100 e considera:
-- Frequência: 30%
-- Regularidade/assiduidade: 20%
-- Sequência: 15%
-- Tempo de treino: 10%
-- Eventos: 10%
-- Competições: 5%
-- Graduação: 10%
-
-O IEA é um indicador de apoio. A decisão de graduação continua sendo do professor.
+## Stack
+Next.js 16, React 19, TypeScript, Supabase, Vercel, Vitest, jsPDF, XLSX e QRCode.
 
 ## Instalação
-1. Copie `.env.example` para `.env.local` e preencha as credenciais do Supabase.
-2. Execute as migrações já usadas no projeto e, para esta versão, rode `supabase/v1.7-evolucao.sql`.
-3. Rode `npm install`.
-4. Rode `npm run dev`.
-5. Para validar produção: `npm run build`.
+```powershell
+npm install
+Copy-Item .env.example .env.local
+npm run dev
+```
+Configure `.env.local` com seu projeto Supabase. Nunca versione esse arquivo.
+
+## Supabase
+Para instalação nova, execute `supabase/schema.sql` e depois as migrações aplicáveis em ordem até `v1.9-comunicacao.sql`. Em uma instalação já atualizada, a v2.0 não exige SQL adicional.
+
+## Validação antes de produção
+```powershell
+npm run typecheck
+npm test
+npm run build
+```
 
 ## Deploy
-O projeto é compatível com GitHub + Vercel. Preserve `.env.local` fora do Git e configure as mesmas variáveis na Vercel.
+Faça commit/push para a branch `main` conectada à Vercel. Configure na Vercel as mesmas variáveis do `.env.local` (sem expor secrets).
+
+## PWA
+Android: instalar pelo Chrome. iPhone: Safari > Compartilhar > Adicionar à Tela de Início. O QR/check-in exige internet para validação segura.
+
+## Segurança
+- `SUPABASE_SERVICE_ROLE_KEY` somente no servidor.
+- RLS e verificações de perfil devem permanecer ativas.
+- Rotas administrativas são bloqueadas para professor/aluno no proxy.
+- Sessões inválidas são limpas e o logout remove cookies de autenticação.

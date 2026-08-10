@@ -1,2 +1,0 @@
-import Link from 'next/link';
-export default function Page(){return <main className="auth-shell" style={{display:'grid',placeItems:'center'}}><div className="card auth-box"><h2>Acesso administrado pela academia</h2><p className="muted" style={{margin:'12px 0 20px'}}>Não usamos recuperação por e-mail. Se esqueceu sua senha, peça ao Administrador Geral para definir uma nova senha.</p><Link className="btn btn-primary" href="/login">Voltar ao login</Link></div></main>}

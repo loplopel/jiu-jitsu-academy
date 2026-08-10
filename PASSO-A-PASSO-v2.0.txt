@@ -1,0 +1,28 @@
+JIU-JITSU ACADEMY v2.0 FINAL — CONEXÃO PAULISTA
+
+1) Faça backup da pasta atual.
+2) Substitua os arquivos pela v2.0, PRESERVANDO .env.local e .git.
+3) Não há SQL novo obrigatório na v2.0. Mantenha as migrações já executadas até v1.9.
+4) Execute:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run typecheck
+   npm test
+   npm run build
+   npm run dev
+5) Testes finais:
+   ADMIN: login, alunos, professores, aulas, evolução, ranking, eventos, notificações, relatórios, usuários/configurações, logout desktop e mobile.
+   PROFESSOR: login, próprias aulas/alunos, QR/presença, evolução, ranking, notificações; confirmar bloqueio de /usuarios e /configuracoes.
+   ALUNO: login, agenda, reserva, check-in, evolução, ranking, notificações, perfil; confirmar bloqueio de /dashboard e /usuarios.
+6) PWA celular:
+   Android: instalar pelo Chrome quando oferecido.
+   iPhone: Safari > Compartilhar > Adicionar à Tela de Início.
+   Confirmar botão Sair no topo do celular.
+7) Git/Vercel:
+   git status
+   git add .
+   git commit -m "v2.0 final"
+   git push
+   Aguarde a Vercel ficar Ready e repita os testes online.
+
+IMPORTANTE: não rode npm audit fix --force sem revisão. Não envie .env.local ao GitHub.

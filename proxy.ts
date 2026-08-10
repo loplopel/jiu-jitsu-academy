@@ -1,7 +1,9 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { canAccessPath, homeForRole } from '@/lib/permissions';
+import type { Role } from '@/lib/types';
 
-const publicPaths=['/','/login','/api/auth/login'];
+const publicPaths=['/','/login','/offline','/api/auth/login','/api/auth/logout'];
 
 function isSupabaseAuthCookie(name:string){
   return name.startsWith('sb-') && name.includes('-auth-token');
@@ -43,14 +45,31 @@ export async function proxy(request: NextRequest) {
   if(!user&&!isPublic){
     const redirect=request.nextUrl.clone();
     redirect.pathname='/login';
+    redirect.searchParams.set('next',pathname);
     return NextResponse.redirect(redirect);
   }
-  if(user&&pathname==='/login'){
-    const redirect=request.nextUrl.clone();
-    redirect.pathname='/dashboard';
-    return NextResponse.redirect(redirect);
+
+  if(!user) return response;
+
+  const {data:profile}=await supabase.from('profiles').select('role,active').eq('id',user.id).maybeSingle();
+  const role=(profile?.role || 'aluno') as Role;
+  const home=homeForRole[role];
+
+  if(profile?.active===false){
+    const cleanResponse=NextResponse.redirect(new URL('/login?error=Acesso+inativo.+Procure+o+administrador.',request.url));
+    clearSupabaseAuthCookies(request,cleanResponse);
+    return cleanResponse;
   }
+
+  if(pathname==='/' || pathname==='/login'){
+    return NextResponse.redirect(new URL(home,request.url));
+  }
+
+  if(!pathname.startsWith('/api/') && !canAccessPath(role,pathname)){
+    return NextResponse.redirect(new URL(home,request.url));
+  }
+
   return response;
 }
 
-export const config={matcher:['/((?!_next/static|_next/image|favicon.ico|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)']};
+export const config={matcher:['/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)']};

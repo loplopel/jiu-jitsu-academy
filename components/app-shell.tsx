@@ -59,7 +59,7 @@ export function AppShell({children}:{children:React.ReactNode}){
   })()},[router]);
   const items=useMemo(()=>menu[role],[role]);
   const mobileItems=useMemo(()=>items.filter(i=>i.mobile).slice(0,5),[items]);
-  async function signOut(){const sb=getSupabaseBrowserClient();await sb?.auth.signOut();router.push('/login')}
+  function signOut(){window.location.href='/api/auth/logout'}
   if(!ready)return <div className="empty">Carregando seu painel...</div>;
   return <>
     <aside className="sidebar">
@@ -74,7 +74,7 @@ export function AppShell({children}:{children:React.ReactNode}){
     <div className="app-main">
       <header className="topbar">
         <div className="topbar-user">{avatar?<img src={avatar} className="topbar-avatar" alt=""/>:<div className="topbar-avatar placeholder">{name.slice(0,1).toUpperCase()}</div>}<div><strong>{name}</strong><div className="muted topbar-sub">{labels[role]} • Conexão Paulista</div></div></div>
-        <div className="toolbar"><Link href="/notificacoes" className="btn btn-secondary icon-only notification-bell" aria-label="Notificações"><Bell size={16}/>{unread>0&&<span className="notification-badge">{unread>99?'99+':unread}</span>}</Link><Link href="/perfil" className="pill profile-pill">Meu perfil</Link></div>
+        <div className="toolbar"><Link href="/notificacoes" className="btn btn-secondary icon-only notification-bell" aria-label="Notificações"><Bell size={16}/>{unread>0&&<span className="notification-badge">{unread>99?'99+':unread}</span>}</Link><Link href="/perfil" className="pill profile-pill">Meu perfil</Link><button className="btn btn-secondary icon-only mobile-logout" onClick={signOut} aria-label="Sair" title="Sair"><LogOut size={16}/></button></div>
       </header>
       <main className="content">{children}</main>
       <nav className="mobile-bottom">{mobileItems.map(({href,label,icon:Icon})=><Link key={href} className={`mobile-bottom-item ${pathname===href?'active':''}`} href={href}><Icon size={20}/><span>{label}</span></Link>)}</nav>
