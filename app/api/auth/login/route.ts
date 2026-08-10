@@ -15,6 +15,10 @@ function destinationForRole(role?: string) {
   return '/meu-painel';
 }
 
+function isSupabaseAuthCookie(name:string){
+  return name.startsWith('sb-') && name.includes('-auth-token');
+}
+
 export async function POST(request: NextRequest) {
   const form = await request.formData();
   const rawLogin = String(form.get('login') || '').trim();
@@ -36,20 +40,12 @@ export async function POST(request: NextRequest) {
   let profile: { id: string; active: boolean | null; role: string } | null = null;
 
   if (normalizedLogin) {
-    const { data } = await admin
-      .from('profiles')
-      .select('id,active,role')
-      .ilike('username', normalizedLogin)
-      .maybeSingle();
+    const { data } = await admin.from('profiles').select('id,active,role').ilike('username', normalizedLogin).maybeSingle();
     profile = data;
   }
 
   if (!profile && rawLogin.includes('@')) {
-    const { data } = await admin
-      .from('profiles')
-      .select('id,active,role')
-      .ilike('email', rawLogin)
-      .maybeSingle();
+    const { data } = await admin.from('profiles').select('id,active,role').ilike('email', rawLogin).maybeSingle();
     profile = data;
   }
 
@@ -64,30 +60,27 @@ export async function POST(request: NextRequest) {
   }
 
   let response = NextResponse.redirect(
-    new URL(
-      next.startsWith('/') && !next.startsWith('//') ? next : destinationForRole(profile.role),
-      request.url,
-    ),
+    new URL(next.startsWith('/') && !next.startsWith('//') ? next : destinationForRole(profile.role), request.url),
     303,
   );
+
+  // Login sempre começa com uma sessão limpa. Cookies antigos/expirados não podem bloquear um novo acesso.
+  request.cookies.getAll().forEach(({name})=>{
+    if(isSupabaseAuthCookie(name)) response.cookies.set(name,'',{path:'/',maxAge:0});
+  });
 
   const supabase = createServerClient(url, key, {
     cookies: {
       getAll() {
-        return request.cookies.getAll();
+        return request.cookies.getAll().filter(({name})=>!isSupabaseAuthCookie(name));
       },
       setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value, options }) => {
-          response.cookies.set(name, value, options);
-        });
+        cookiesToSet.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
       },
     },
   });
 
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: authEmail,
-    password,
-  });
+  const { data, error } = await supabase.auth.signInWithPassword({ email: authEmail, password });
 
   if (error || !data.session) {
     return NextResponse.redirect(loginUrl(request, 'Login ou senha inválidos.'), 303);

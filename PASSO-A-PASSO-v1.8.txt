@@ -1,0 +1,17 @@
+JIU-JITSU ACADEMY v1.8 - CONEXÃO PAULISTA
+
+1. Faça backup da pasta atual.
+2. Substitua os arquivos pela v1.8 preservando .env.local e .git.
+3. No Supabase > SQL Editor execute: supabase/v1.8-gamificacao.sql
+4. No VS Code execute:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run dev
+5. Teste /ranking como Admin, Professor e Aluno.
+6. Como Admin, clique em "Atualizar conquistas" e teste "Aluno do mês".
+7. Confirme que /financeiro, /cadastros/mensalidades e /cadastros/planos não existem mais.
+8. Execute npm run build.
+9. Se passar:
+   git add .
+   git commit -m "v1.8 gamificacao e limpeza definitiva"
+   git push
