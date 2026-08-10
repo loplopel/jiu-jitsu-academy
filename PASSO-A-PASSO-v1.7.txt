@@ -1,0 +1,22 @@
+JIU-JITSU ACADEMY v1.7 — CONEXÃO PAULISTA
+
+1. Faça backup da pasta atual.
+2. Substitua os arquivos pela v1.7 e preserve somente o seu .env.local.
+3. Não é necessário apagar dados financeiros no Supabase. Eles ficam preservados, mas o app não usa mais esses módulos.
+4. Execute o SQL supabase/v1.7-evolucao.sql no SQL Editor do Supabase.
+5. Rode:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run dev
+6. Teste login Admin, Professor e Aluno.
+7. Teste /graduacoes:
+   - conferir IEA e métricas;
+   - Salvar IEA;
+   - registrar uma graduação de teste;
+   - conferir histórico.
+8. Teste /alunos e confirme que Plano/Dia de vencimento não aparecem mais.
+9. Rode npm run build.
+10. Se aprovado:
+   git add .
+   git commit -m "v1.7 evolucao esportiva e IEA"
+   git push

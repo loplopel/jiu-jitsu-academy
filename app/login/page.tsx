@@ -12,7 +12,7 @@ export default async function Login({
         <span className="pill">CONEXÃO • DISCIPLINA • EVOLUÇÃO</span>
         <h1>Seu time conectado dentro e fora do tatame.</h1>
         <p className="muted">
-          Aulas, presença por QR Code, mensalidades, graduações, eventos, rankings e evolução esportiva.
+          Aulas, presença por QR Code, graduações, eventos, rankings e evolução esportiva.
         </p>
       </section>
 

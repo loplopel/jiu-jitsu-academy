@@ -3,17 +3,17 @@ import {useEffect,useMemo,useState} from 'react';
 import {AppShell} from '@/components/app-shell';
 import {Plus,RefreshCw,Pencil,Search,Upload,UserRound,Filter,Trash2,KeyRound} from 'lucide-react';
 
-type Opt={id:string;name:string;amount?:number;billing_cycle?:string;contact_email?:string};
+type Opt={id:string;name:string;contact_email?:string};
 type Row={
-  id:string;cpf?:string;whatsapp?:string;birth_date?:string;sex?:string;weight?:number;height?:number;degrees?:number;start_date?:string;last_graduation_date?:string;notes?:string;emergency_contact?:string;emergency_name?:string;emergency_phone?:string;emergency_relation?:string;injuries?:string;status?:string;category_id?:string;responsible_professor_id?:string;belt_id?:string;plan_id?:string;billing_due_day?:number;
-  profiles?:{name?:string;username?:string;contact_email?:string;phone?:string;avatar_url?:string}|null;belts?:{name?:string}|null;plans?:{name?:string;amount?:number}|null;categories?:{name?:string}|null;responsible?:{name?:string}|null
+  id:string;cpf?:string;whatsapp?:string;birth_date?:string;sex?:string;weight?:number;height?:number;degrees?:number;start_date?:string;last_graduation_date?:string;notes?:string;emergency_contact?:string;emergency_name?:string;emergency_phone?:string;emergency_relation?:string;injuries?:string;status?:string;category_id?:string;responsible_professor_id?:string;belt_id?:string;
+  profiles?:{name?:string;username?:string;contact_email?:string;phone?:string;avatar_url?:string}|null;belts?:{name?:string}|null;categories?:{name?:string}|null;responsible?:{name?:string}|null
 };
-const empty={name:'',username:'',password:'',contact_email:'',phone:'',whatsapp:'',avatar_url:'',cpf:'',birth_date:'',sex:'',weight:'',height:'',category_id:'',responsible_professor_id:'',start_date:'',belt_id:'',degrees:0,last_graduation_date:'',notes:'',emergency_contact:'',emergency_name:'',emergency_phone:'',emergency_relation:'',injuries:'',plan_id:'',billing_due_day:10,status:'ativo'};
+const empty={name:'',username:'',password:'',contact_email:'',phone:'',whatsapp:'',avatar_url:'',cpf:'',birth_date:'',sex:'',weight:'',height:'',category_id:'',responsible_professor_id:'',start_date:'',belt_id:'',degrees:0,last_graduation_date:'',notes:'',emergency_contact:'',emergency_name:'',emergency_phone:'',emergency_relation:'',injuries:'',status:'ativo'};
 
 export default function Page(){
-  const[rows,setRows]=useState<Row[]>([]); const[opts,setOpts]=useState<{belts:Opt[];categories:Opt[];plans:Opt[];professors:Opt[]}>({belts:[],categories:[],plans:[],professors:[]});
+  const[rows,setRows]=useState<Row[]>([]); const[opts,setOpts]=useState<{belts:Opt[];categories:Opt[];professors:Opt[]}>({belts:[],categories:[],professors:[]});
   const[open,setOpen]=useState(false); const[editing,setEditing]=useState<string|null>(null); const[isAdmin,setIsAdmin]=useState(false); const[msg,setMsg]=useState(''); const[form,setForm]=useState<any>(empty); const[photo,setPhoto]=useState<File|null>(null); const[saving,setSaving]=useState(false);
-  const[q,setQ]=useState(''); const[status,setStatus]=useState('todos'); const[belt,setBelt]=useState('todos'); const[plan,setPlan]=useState('todos');
+  const[q,setQ]=useState(''); const[status,setStatus]=useState('todos'); const[belt,setBelt]=useState('todos');
 
   async function load(){
     const[r,o]=await Promise.all([fetch('/api/students',{cache:'no-store'}),fetch('/api/students/options',{cache:'no-store'})]);
@@ -25,12 +25,12 @@ export default function Page(){
 
   const filtered=useMemo(()=>rows.filter(x=>{
     const text=`${x.profiles?.name||''} ${x.profiles?.username||''} ${x.profiles?.contact_email||''} ${x.cpf||''} ${x.profiles?.phone||''}`.toLowerCase();
-    return(!q||text.includes(q.toLowerCase()))&&(status==='todos'||x.status===status)&&(belt==='todos'||x.belt_id===belt)&&(plan==='todos'||x.plan_id===plan);
-  }),[rows,q,status,belt,plan]);
+    return(!q||text.includes(q.toLowerCase()))&&(status==='todos'||x.status===status)&&(belt==='todos'||x.belt_id===belt);
+  }),[rows,q,status,belt]);
 
   function beginNew(){setEditing(null);setForm({...empty,start_date:new Date().toISOString().slice(0,10)});setPhoto(null);setMsg('');setOpen(true)}
   function edit(x:Row){setEditing(x.id);setPhoto(null);setForm({
-    name:x.profiles?.name||'',username:x.profiles?.username||'',password:'',contact_email:x.profiles?.contact_email||'',phone:x.profiles?.phone||'',whatsapp:x.whatsapp||'',avatar_url:x.profiles?.avatar_url||'',cpf:x.cpf||'',birth_date:x.birth_date||'',sex:x.sex||'',weight:x.weight??'',height:x.height??'',category_id:x.category_id||'',responsible_professor_id:x.responsible_professor_id||'',start_date:x.start_date||'',belt_id:x.belt_id||'',degrees:x.degrees??0,last_graduation_date:x.last_graduation_date||'',notes:x.notes||'',emergency_contact:x.emergency_contact||'',emergency_name:x.emergency_name||'',emergency_phone:x.emergency_phone||'',emergency_relation:x.emergency_relation||'',injuries:x.injuries||'',plan_id:x.plan_id||'',billing_due_day:x.billing_due_day??10,status:x.status||'ativo'
+    name:x.profiles?.name||'',username:x.profiles?.username||'',password:'',contact_email:x.profiles?.contact_email||'',phone:x.profiles?.phone||'',whatsapp:x.whatsapp||'',avatar_url:x.profiles?.avatar_url||'',cpf:x.cpf||'',birth_date:x.birth_date||'',sex:x.sex||'',weight:x.weight??'',height:x.height??'',category_id:x.category_id||'',responsible_professor_id:x.responsible_professor_id||'',start_date:x.start_date||'',belt_id:x.belt_id||'',degrees:x.degrees??0,last_graduation_date:x.last_graduation_date||'',notes:x.notes||'',emergency_contact:x.emergency_contact||'',emergency_name:x.emergency_name||'',emergency_phone:x.emergency_phone||'',emergency_relation:x.emergency_relation||'',injuries:x.injuries||'',status:x.status||'ativo'
   });setOpen(true)}
 
   async function uploadPhoto(studentId:string){
@@ -62,7 +62,7 @@ export default function Page(){
   async function save(e:React.FormEvent){
     e.preventDefault(); setSaving(true); setMsg('Salvando aluno...');
     try{
-      const payload={...form,id:editing||undefined,weight:form.weight===''?null:Number(form.weight),height:form.height===''?null:Number(form.height),degrees:Number(form.degrees),category_id:form.category_id||null,responsible_professor_id:form.responsible_professor_id||null,belt_id:form.belt_id||null,plan_id:form.plan_id||null};
+      const payload={...form,id:editing||undefined,weight:form.weight===''?null:Number(form.weight),height:form.height===''?null:Number(form.height),degrees:Number(form.degrees),category_id:form.category_id||null,responsible_professor_id:form.responsible_professor_id||null,belt_id:form.belt_id||null};
       const r=await fetch('/api/students',{method:editing?'PATCH':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)}); const j=await r.json();
       if(!r.ok)throw new Error(j.error||'Falha ao salvar aluno');
       const id=editing||j.id; if(photo&&id)await uploadPhoto(id);
@@ -71,7 +71,7 @@ export default function Page(){
   }
 
   return <AppShell>
-    <section className="hero"><div className="split"><div><h1>Alunos</h1><div className="muted">Cadastro completo, vínculo com professor, plano, faixa e acesso individual ao aplicativo.</div></div><button className="btn btn-primary" onClick={beginNew}><Plus size={16}/> Novo aluno</button></div></section>
+    <section className="hero"><div className="split"><div><h1>Alunos</h1><div className="muted">Cadastro completo, vínculo com professor, categoria, faixa e acesso individual ao aplicativo.</div></div><button className="btn btn-primary" onClick={beginNew}><Plus size={16}/> Novo aluno</button></div></section>
     {msg&&<div className={msg.includes('sucesso')||msg.includes('convite')?'notice success':'notice error'} style={{marginBottom:14}}>{msg}</div>}
 
     {open&&<form className="card admin-form" onSubmit={save}>
@@ -84,7 +84,7 @@ export default function Page(){
       </div>
 
       <div className="form-section-title">Vínculos esportivos</div><div className="grid grid-3">
-        <Select l="Categoria" v={form.category_id} set={v=>setForm({...form,category_id:v})} items={opts.categories}/><Select l="Professor responsável" v={form.responsible_professor_id} set={v=>setForm({...form,responsible_professor_id:v})} items={opts.professors}/><Select l="Plano" v={form.plan_id} set={v=>setForm({...form,plan_id:v})} items={opts.plans}/><F l="Dia de vencimento" v={form.billing_due_day} set={v=>setForm({...form,billing_due_day:Number(v)})} type="number" min="1" max="28"/>
+        <Select l="Categoria" v={form.category_id} set={v=>setForm({...form,category_id:v})} items={opts.categories}/><Select l="Professor responsável" v={form.responsible_professor_id} set={v=>setForm({...form,responsible_professor_id:v})} items={opts.professors}/>
         <Select l="Faixa" v={form.belt_id} set={v=>setForm({...form,belt_id:v})} items={opts.belts}/><F l="Graus" v={form.degrees} set={v=>setForm({...form,degrees:Number(v)})} type="number" min="0" max="6"/><F l="Data da última graduação" v={form.last_graduation_date} set={v=>setForm({...form,last_graduation_date:v})} type="date"/>
         <F l="Data de início" v={form.start_date} set={v=>setForm({...form,start_date:v})} type="date"/><div><label className="label">Status</label><select className="input" value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="ativo">Ativo</option><option value="inativo">Inativo</option><option value="bloqueado">Bloqueado</option></select></div>
         <div><label className="label">Foto do aluno</label><label className="upload-field"><Upload size={16}/><span>{photo?photo.name:'Selecionar JPG, PNG ou WEBP'}</span><input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={e=>setPhoto(e.target.files?.[0]||null)}/></label></div>
@@ -97,9 +97,9 @@ export default function Page(){
       <div className="toolbar" style={{marginTop:16}}><button className="btn btn-primary" disabled={saving}>{saving?'Salvando...':editing?'Salvar alterações':'Cadastrar aluno'}</button><button type="button" className="btn btn-secondary" onClick={()=>setOpen(false)}>Cancelar</button></div>
     </form>}
 
-    <div className="card" style={{padding:18}}><div className="student-toolbar"><div className="search-wrap"><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar por nome, login, CPF ou telefone"/></div><div className="filter-group"><Filter size={15}/><select className="input compact" value={status} onChange={e=>setStatus(e.target.value)}><option value="todos">Todos os status</option><option value="ativo">Ativos</option><option value="inativo">Inativos</option><option value="bloqueado">Bloqueados</option></select><select className="input compact" value={belt} onChange={e=>setBelt(e.target.value)}><option value="todos">Todas as faixas</option>{opts.belts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select><select className="input compact" value={plan} onChange={e=>setPlan(e.target.value)}><option value="todos">Todos os planos</option>{opts.plans.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div><button className="btn btn-secondary" onClick={load}><RefreshCw size={14}/> Atualizar</button></div>
+    <div className="card" style={{padding:18}}><div className="student-toolbar"><div className="search-wrap"><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar por nome, login, CPF ou telefone"/></div><div className="filter-group"><Filter size={15}/><select className="input compact" value={status} onChange={e=>setStatus(e.target.value)}><option value="todos">Todos os status</option><option value="ativo">Ativos</option><option value="inativo">Inativos</option><option value="bloqueado">Bloqueados</option></select><select className="input compact" value={belt} onChange={e=>setBelt(e.target.value)}><option value="todos">Todas as faixas</option>{opts.belts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div><button className="btn btn-secondary" onClick={load}><RefreshCw size={14}/> Atualizar</button></div>
       <div className="student-summary"><span><strong>{filtered.length}</strong> exibido(s)</span><span><strong>{rows.filter(x=>x.status==='ativo').length}</strong> ativo(s)</span><span><strong>{rows.filter(x=>x.status==='bloqueado').length}</strong> bloqueado(s)</span></div>
-      {!filtered.length?<div className="empty-state">Nenhum aluno encontrado. Clique em “Novo aluno” para iniciar a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Contato</th><th>Faixa</th><th>Professor</th><th>Plano</th><th>Início</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(x=><tr key={x.id}><td><div className="student-cell">{x.profiles?.avatar_url?<img src={x.profiles.avatar_url} className="student-avatar" alt=""/>:<div className="student-avatar mini"><UserRound size={16}/></div>}<div><strong>{x.profiles?.name||'-'}</strong><div className="muted small-text">{x.cpf||`Login: ${x.profiles?.username||'-'}`}</div></div></div></td><td>{x.whatsapp||x.profiles?.phone||'-'}<div className="muted small-text">{x.profiles?.contact_email||''}</div></td><td>{x.belts?.name||'-'} <span className="muted">• {x.degrees??0} grau(s)</span></td><td>{x.responsible?.name||'-'}</td><td>{x.plans?.name||'-'}</td><td>{formatDate(x.start_date)}</td><td><span className={`status-badge status-${x.status}`}>{x.status||'-'}</span></td><td><div style={{display:'flex',gap:6}}><button className="icon-btn" onClick={()=>edit(x)} title="Editar aluno"><Pencil size={15}/></button>{isAdmin&&<><button className="icon-btn" onClick={()=>resetAccess(x)} title="Redefinir senha"><KeyRound size={15}/></button><button className="icon-btn danger" onClick={()=>removeStudent(x)} title="Excluir aluno"><Trash2 size={15}/></button></>}</div></td></tr>)}</tbody></table></div>}
+      {!filtered.length?<div className="empty-state">Nenhum aluno encontrado. Clique em “Novo aluno” para iniciar a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Contato</th><th>Faixa</th><th>Professor</th><th>Início</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(x=><tr key={x.id}><td><div className="student-cell">{x.profiles?.avatar_url?<img src={x.profiles.avatar_url} className="student-avatar" alt=""/>:<div className="student-avatar mini"><UserRound size={16}/></div>}<div><strong>{x.profiles?.name||'-'}</strong><div className="muted small-text">{x.cpf||`Login: ${x.profiles?.username||'-'}`}</div></div></div></td><td>{x.whatsapp||x.profiles?.phone||'-'}<div className="muted small-text">{x.profiles?.contact_email||''}</div></td><td>{x.belts?.name||'-'} <span className="muted">• {x.degrees??0} grau(s)</span></td><td>{x.responsible?.name||'-'}</td><td>{formatDate(x.start_date)}</td><td><span className={`status-badge status-${x.status}`}>{x.status||'-'}</span></td><td><div style={{display:'flex',gap:6}}><button className="icon-btn" onClick={()=>edit(x)} title="Editar aluno"><Pencil size={15}/></button>{isAdmin&&<><button className="icon-btn" onClick={()=>resetAccess(x)} title="Redefinir senha"><KeyRound size={15}/></button><button className="icon-btn danger" onClick={()=>removeStudent(x)} title="Excluir aluno"><Trash2 size={15}/></button></>}</div></td></tr>)}</tbody></table></div>}
     </div>
   </AppShell>
 }

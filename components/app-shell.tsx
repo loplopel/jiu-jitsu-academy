@@ -3,9 +3,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard, Users, CalendarDays, ScanLine, CreditCard, Trophy, Medal,
-  FileBarChart, Settings, LogOut, Bell, UserRoundCog, Award, UserCircle,
-  GraduationCap, WalletCards, CalendarCheck, House, ChartNoAxesCombined
+  Users, CalendarDays, ScanLine, Trophy, Medal, FileBarChart, Settings, LogOut, Bell, UserRoundCog, Award, UserCircle, GraduationCap, CalendarCheck, House, ChartNoAxesCombined
 } from 'lucide-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import type { Role } from '@/lib/types';
@@ -17,7 +15,6 @@ const menu:Record<Role,MenuItem[]> = {
     {href:'/alunos',label:'Alunos',icon:Users,mobile:true},
     {href:'/cadastros/professores',label:'Professores',icon:GraduationCap,mobile:true},
     {href:'/aulas',label:'Aulas',icon:CalendarDays,mobile:true},
-    {href:'/financeiro',label:'Financeiro',icon:CreditCard,mobile:true},
     {href:'/graduacoes',label:'Graduações',icon:Medal},
     {href:'/eventos',label:'Eventos',icon:Trophy},
     {href:'/relatorios',label:'Relatórios',icon:FileBarChart},
@@ -43,7 +40,6 @@ const menu:Record<Role,MenuItem[]> = {
     {href:'/check-in/scan',label:'Check-in',icon:ScanLine,mobile:true},
     {href:'/graduacoes',label:'Evolução',icon:Award,mobile:true},
     {href:'/perfil',label:'Perfil',icon:UserCircle,mobile:true},
-    {href:'/financeiro',label:'Mensalidade',icon:WalletCards},
     {href:'/eventos',label:'Eventos',icon:Trophy},
     {href:'/ranking',label:'Ranking',icon:Award},
     {href:'/notificacoes',label:'Notificações',icon:Bell},
