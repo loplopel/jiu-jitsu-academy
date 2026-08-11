@@ -1,0 +1,26 @@
+JIU-JITSU ACADEMY v2.0.3 — CADASTROS FINOS
+
+1) Preserve .env.local e .git.
+2) Substitua os arquivos pela v2.0.3.
+3) Supabase > SQL Editor > execute: supabase/v2.0.3-cadastros-finos.sql
+4) No VS Code:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run typecheck
+   npm test
+   npm run build
+   npm run dev
+
+TESTE ALUNO
+- Novo aluno
+- Informe nascimento, sexo e peso.
+- Categoria deve aparecer automaticamente.
+- Exemplo para um homem Master 2 de 75 kg: Master 2 - Leve.
+- Escolha professor, faixa, graus, início e foto.
+
+TESTE PROFESSOR
+- Novo professor
+- Nome, login, senha inicial, nascimento, sexo, peso, faixa, graus e observação.
+
+OBSERVAÇÃO
+A tabela fornecida de peso contempla Juvenil, Adulto e Masters. Para 4–15 anos, enquanto não houver uma tabela infantil de peso fornecida pela equipe, o sistema usa apenas a categoria etária.

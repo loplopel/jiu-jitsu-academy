@@ -1,3 +1,7 @@
+# Jiu-Jitsu Academy — Conexão Paulista v2.0.3
+
+Base final com cadastro esportivo refinado, categoria automática por idade/sexo/peso, QR, evolução, ranking e notificações.
+
 # Conexão Paulista Jiu-Jitsu — v2.0
 
 PWA de gestão esportiva para equipe de Jiu-Jitsu, com três perfis: Administrador Geral, Professor e Aluno.

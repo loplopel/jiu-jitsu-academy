@@ -40,3 +40,6 @@
   .mobile-bottom{padding-bottom:max(8px,env(safe-area-inset-bottom))}
   .content{padding-bottom:calc(92px + env(safe-area-inset-bottom))}
 }
+
+/* v2.0.3 - categoria esportiva calculada */
+.category-readonly{display:flex;align-items:center;min-height:44px;background:rgba(255,255,255,.035);font-weight:700;color:var(--text,#fff);cursor:default}

@@ -2,6 +2,7 @@
 import {useEffect,useMemo,useState} from 'react';
 import {AppShell} from '@/components/app-shell';
 import {Plus,RefreshCw,Pencil,Search,Upload,UserRound,Filter,Trash2,KeyRound} from 'lucide-react';
+import {allowedBelts,competitionCategory} from '@/lib/competition-category';
 
 type Opt={id:string;name:string;contact_email?:string};
 type Row={
@@ -14,6 +15,8 @@ export default function Page(){
   const[rows,setRows]=useState<Row[]>([]); const[opts,setOpts]=useState<{belts:Opt[];categories:Opt[];professors:Opt[]}>({belts:[],categories:[],professors:[]});
   const[open,setOpen]=useState(false); const[editing,setEditing]=useState<string|null>(null); const[isAdmin,setIsAdmin]=useState(false); const[msg,setMsg]=useState(''); const[form,setForm]=useState<any>(empty); const[photo,setPhoto]=useState<File|null>(null); const[saving,setSaving]=useState(false);
   const[q,setQ]=useState(''); const[status,setStatus]=useState('todos'); const[belt,setBelt]=useState('todos');
+  const category=useMemo(()=>competitionCategory(form.birth_date,form.sex,form.weight===''?null:Number(form.weight)),[form.birth_date,form.sex,form.weight]);
+  const permittedBelts=useMemo(()=>{const names=allowedBelts(category.age);return names.length?opts.belts.filter(b=>names.includes(b.name)):opts.belts},[opts.belts,category.age]);
 
   async function load(){
     const[r,o]=await Promise.all([fetch('/api/students',{cache:'no-store'}),fetch('/api/students/options',{cache:'no-store'})]);
@@ -62,7 +65,7 @@ export default function Page(){
   async function save(e:React.FormEvent){
     e.preventDefault(); setSaving(true); setMsg('Salvando aluno...');
     try{
-      const payload={...form,id:editing||undefined,weight:form.weight===''?null:Number(form.weight),height:form.height===''?null:Number(form.height),degrees:Number(form.degrees),category_id:form.category_id||null,responsible_professor_id:form.responsible_professor_id||null,belt_id:form.belt_id||null};
+      const payload={...form,id:editing||undefined,weight:form.weight===''?null:Number(form.weight),height:form.height===''?null:Number(form.height),degrees:Number(form.degrees),category_id:form.category_id||null,responsible_professor_id:form.responsible_professor_id||null,belt_id:form.belt_id||null,category_name:category.label||null};
       const r=await fetch('/api/students',{method:editing?'PATCH':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)}); const j=await r.json();
       if(!r.ok)throw new Error(j.error||'Falha ao salvar aluno');
       const id=editing||j.id; if(photo&&id)await uploadPhoto(id);
@@ -76,30 +79,35 @@ export default function Page(){
 
     {open&&<form className="card admin-form" onSubmit={save}>
       <div className="student-form-heading"><div><strong>{editing?'Editar aluno':'Novo aluno'}</strong><div className="muted small-text">O acesso é criado pela academia com login e senha. E-mail é apenas contato opcional.</div></div>{form.avatar_url?<img className="student-avatar-lg" src={form.avatar_url} alt="Foto do aluno"/>:<div className="student-avatar-placeholder"><UserRound size={30}/></div>}</div>
-      <div className="form-section-title">Dados pessoais</div><div className="grid grid-3">
-        <F l="Nome" v={form.name} set={v=>setForm({...form,name:v})} req/>{!editing&&<><F l="Login" v={form.username} set={v=>setForm({...form,username:v})} req/><F l="Senha inicial" v={form.password} set={v=>setForm({...form,password:v})} type="password" req/></>}<F l="E-mail de contato (opcional)" v={form.contact_email} set={v=>setForm({...form,contact_email:v})} type="email"/><F l="CPF" v={form.cpf} set={v=>setForm({...form,cpf:v})}/>
-        <F l="Telefone" v={form.phone} set={v=>setForm({...form,phone:v})}/><F l="WhatsApp" v={form.whatsapp} set={v=>setForm({...form,whatsapp:v})}/><F l="Data de nascimento" v={form.birth_date} set={v=>setForm({...form,birth_date:v})} type="date"/>
-        <div><label className="label">Sexo</label><select className="input" value={form.sex} onChange={e=>setForm({...form,sex:e.target.value})}><option value="">Não informado</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option><option value="Outro">Outro</option></select></div>
-        <F l="Peso (kg)" v={form.weight} set={v=>setForm({...form,weight:v})} type="number" step="0.1"/><F l="Altura (cm)" v={form.height} set={v=>setForm({...form,height:v})} type="number" step="0.1"/>
+
+      <div className="form-section-title">Dados pessoais</div>
+      <div className="grid grid-3">
+        <F l="Nome" v={form.name} set={v=>setForm({...form,name:v})} req/>
+        {!editing&&<><F l="Login" v={form.username} set={v=>setForm({...form,username:v})} req/><F l="Senha inicial" v={form.password} set={v=>setForm({...form,password:v})} type="password" req/></>}
+        {editing&&<F l="Login" v={form.username} set={()=>{}} disabled/>}
+        <F l="E-mail de contato (opcional)" v={form.contact_email} set={v=>setForm({...form,contact_email:v})} type="email"/>
+        <F l="Data de nascimento" v={form.birth_date} set={v=>setForm({...form,birth_date:v})} type="date" req/>
+        <div><label className="label">Sexo</label><select className="input" value={form.sex} onChange={e=>setForm({...form,sex:e.target.value})} required><option value="">Selecione</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select></div>
+        <F l="Peso (kg)" v={form.weight} set={v=>setForm({...form,weight:v})} type="number" step="0.1" min="0" req/>
       </div>
 
-      <div className="form-section-title">Vínculos esportivos</div><div className="grid grid-3">
-        <Select l="Categoria" v={form.category_id} set={v=>setForm({...form,category_id:v})} items={opts.categories}/><Select l="Professor responsável" v={form.responsible_professor_id} set={v=>setForm({...form,responsible_professor_id:v})} items={opts.professors}/>
-        <Select l="Faixa" v={form.belt_id} set={v=>setForm({...form,belt_id:v})} items={opts.belts}/><F l="Graus" v={form.degrees} set={v=>setForm({...form,degrees:Number(v)})} type="number" min="0" max="6"/><F l="Data da última graduação" v={form.last_graduation_date} set={v=>setForm({...form,last_graduation_date:v})} type="date"/>
-        <F l="Data de início" v={form.start_date} set={v=>setForm({...form,start_date:v})} type="date"/><div><label className="label">Status</label><select className="input" value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="ativo">Ativo</option><option value="inativo">Inativo</option><option value="bloqueado">Bloqueado</option></select></div>
+      <div className="form-section-title">Vínculos esportivos</div>
+      <div className="grid grid-3">
+        <div><label className="label">Categoria</label><div className="input category-readonly">{category.label||'Informe nascimento, sexo e peso'}</div><div className="muted small-text" style={{marginTop:6}}>{category.age!==null&&category.age<16?'A tabela enviada não traz pesos infantis; nesta idade a categoria usa somente a faixa etária.':'Calculada automaticamente por idade, sexo e peso.'}</div></div>
+        <Select l="Professor responsável" v={form.responsible_professor_id} set={v=>setForm({...form,responsible_professor_id:v})} items={opts.professors}/>
+        <Select l="Faixa" v={form.belt_id} set={v=>setForm({...form,belt_id:v})} items={permittedBelts}/>
+        <F l="Graus" v={form.degrees} set={v=>setForm({...form,degrees:Number(v)})} type="number" min="0" max="6"/>
+        <F l="Data de início" v={form.start_date} set={v=>setForm({...form,start_date:v})} type="date" req/>
         <div><label className="label">Foto do aluno</label><label className="upload-field"><Upload size={16}/><span>{photo?photo.name:'Selecionar JPG, PNG ou WEBP'}</span><input type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={e=>setPhoto(e.target.files?.[0]||null)}/></label></div>
       </div>
 
-      <div className="form-section-title">Emergência e observações</div><div className="grid grid-3">
-        <F l="Nome do contato de emergência" v={form.emergency_name} set={v=>setForm({...form,emergency_name:v})}/><F l="Telefone de emergência" v={form.emergency_phone} set={v=>setForm({...form,emergency_phone:v})}/><F l="Parentesco / relação" v={form.emergency_relation} set={v=>setForm({...form,emergency_relation:v})}/>
-        <div className="grid-span-3"><label className="label">Lesões / restrições</label><textarea className="input" rows={2} value={form.injuries} onChange={e=>setForm({...form,injuries:e.target.value})}/></div><div className="grid-span-3"><label className="label">Observações</label><textarea className="input" rows={3} value={form.notes} onChange={e=>setForm({...form,notes:e.target.value})}/></div>
-      </div>
+      <div className="notice" style={{marginTop:16}}>Faixas disponíveis também seguem a categoria de idade enviada: infantil, juvenil, adulto e masters.</div>
       <div className="toolbar" style={{marginTop:16}}><button className="btn btn-primary" disabled={saving}>{saving?'Salvando...':editing?'Salvar alterações':'Cadastrar aluno'}</button><button type="button" className="btn btn-secondary" onClick={()=>setOpen(false)}>Cancelar</button></div>
     </form>}
 
     <div className="card" style={{padding:18}}><div className="student-toolbar"><div className="search-wrap"><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar por nome, login, CPF ou telefone"/></div><div className="filter-group"><Filter size={15}/><select className="input compact" value={status} onChange={e=>setStatus(e.target.value)}><option value="todos">Todos os status</option><option value="ativo">Ativos</option><option value="inativo">Inativos</option><option value="bloqueado">Bloqueados</option></select><select className="input compact" value={belt} onChange={e=>setBelt(e.target.value)}><option value="todos">Todas as faixas</option>{opts.belts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div><button className="btn btn-secondary" onClick={load}><RefreshCw size={14}/> Atualizar</button></div>
       <div className="student-summary"><span><strong>{filtered.length}</strong> exibido(s)</span><span><strong>{rows.filter(x=>x.status==='ativo').length}</strong> ativo(s)</span><span><strong>{rows.filter(x=>x.status==='bloqueado').length}</strong> bloqueado(s)</span></div>
-      {!filtered.length?<div className="empty-state">Nenhum aluno encontrado. Clique em “Novo aluno” para iniciar a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Contato</th><th>Faixa</th><th>Professor</th><th>Início</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(x=><tr key={x.id}><td><div className="student-cell">{x.profiles?.avatar_url?<img src={x.profiles.avatar_url} className="student-avatar" alt=""/>:<div className="student-avatar mini"><UserRound size={16}/></div>}<div><strong>{x.profiles?.name||'-'}</strong><div className="muted small-text">{x.cpf||`Login: ${x.profiles?.username||'-'}`}</div></div></div></td><td>{x.whatsapp||x.profiles?.phone||'-'}<div className="muted small-text">{x.profiles?.contact_email||''}</div></td><td>{x.belts?.name||'-'} <span className="muted">• {x.degrees??0} grau(s)</span></td><td>{x.responsible?.name||'-'}</td><td>{formatDate(x.start_date)}</td><td><span className={`status-badge status-${x.status}`}>{x.status||'-'}</span></td><td><div style={{display:'flex',gap:6}}><button className="icon-btn" onClick={()=>edit(x)} title="Editar aluno"><Pencil size={15}/></button>{isAdmin&&<><button className="icon-btn" onClick={()=>resetAccess(x)} title="Redefinir senha"><KeyRound size={15}/></button><button className="icon-btn danger" onClick={()=>removeStudent(x)} title="Excluir aluno"><Trash2 size={15}/></button></>}</div></td></tr>)}</tbody></table></div>}
+      {!filtered.length?<div className="empty-state">Nenhum aluno encontrado. Clique em “Novo aluno” para iniciar a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Categoria</th><th>Faixa</th><th>Professor</th><th>Início</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(x=><tr key={x.id}><td><div className="student-cell">{x.profiles?.avatar_url?<img src={x.profiles.avatar_url} className="student-avatar" alt=""/>:<div className="student-avatar mini"><UserRound size={16}/></div>}<div><strong>{x.profiles?.name||'-'}</strong><div className="muted small-text">{x.cpf||`Login: ${x.profiles?.username||'-'}`}</div></div></div></td><td>{x.categories?.name||'-'}</td><td>{x.belts?.name||'-'} <span className="muted">• {x.degrees??0} grau(s)</span></td><td>{x.responsible?.name||'-'}</td><td>{formatDate(x.start_date)}</td><td><span className={`status-badge status-${x.status}`}>{x.status||'-'}</span></td><td><div style={{display:'flex',gap:6}}><button className="icon-btn" onClick={()=>edit(x)} title="Editar aluno"><Pencil size={15}/></button>{isAdmin&&<><button className="icon-btn" onClick={()=>resetAccess(x)} title="Redefinir senha"><KeyRound size={15}/></button><button className="icon-btn danger" onClick={()=>removeStudent(x)} title="Excluir aluno"><Trash2 size={15}/></button></>}</div></td></tr>)}</tbody></table></div>}
     </div>
   </AppShell>
 }
