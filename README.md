@@ -1,4 +1,4 @@
-# Jiu-Jitsu Academy — Conexão Paulista v2.0.3
+# Jiu-Jitsu Academy — Conexão Paulista v2.0.4
 
 Base final com cadastro esportivo refinado, categoria automática por idade/sexo/peso, QR, evolução, ranking e notificações.
 
@@ -52,3 +52,9 @@ Android: instalar pelo Chrome. iPhone: Safari > Compartilhar > Adicionar à Tela
 - RLS e verificações de perfil devem permanecer ativas.
 - Rotas administrativas são bloqueadas para professor/aluno no proxy.
 - Sessões inválidas são limpas e o logout remove cookies de autenticação.
+
+## Performance — v2.0.4
+
+A v2.0.4 adiciona índices de banco e reduz trabalho desnecessário nas telas mais pesadas. Após atualizar os arquivos, execute `supabase/v2.0.4-performance.sql` uma vez no SQL Editor do Supabase.
+
+O script não remove dados e pode ser executado novamente com segurança graças a `create index if not exists`.

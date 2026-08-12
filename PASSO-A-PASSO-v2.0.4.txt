@@ -1,0 +1,36 @@
+CONEXAO PAULISTA JIU-JITSU — v2.0.4 PERFORMANCE
+
+1. Preserve os arquivos/pastas locais:
+   .env.local
+   .git
+
+2. Substitua os arquivos do projeto pelos da v2.0.4.
+
+3. No Supabase > SQL Editor, execute:
+   supabase/v2.0.4-performance.sql
+
+4. No VS Code / PowerShell:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run typecheck
+   npm test
+   npm run build
+   npm run dev
+
+5. Teste principalmente:
+   - login e abertura do painel;
+   - Dashboard Admin;
+   - painel Professor;
+   - painel Aluno;
+   - Aulas;
+   - Ranking e conquistas;
+   - Notificacoes;
+   - Check-in QR.
+
+6. Se tudo estiver correto:
+   git add .
+   git commit -m "v2.0.4 otimiza performance"
+   git push
+
+OBSERVACAO:
+Nao rode npm audit fix --force durante esta atualizacao.

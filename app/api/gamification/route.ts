@@ -36,7 +36,9 @@ export async function GET(){
       g.admin.from('gamification_awards').select('student_id,award_month,student:profiles!gamification_awards_student_id_fkey(name)').eq('award_month',monthKey(now)).eq('award_type','student_month').maybeSingle(),
     ]);
     const att:any[]=attRes.data||[],latest=new Map<string,number>();for(const s of scoreRes.data||[])if(!latest.has(s.student_id))latest.set(s.student_id,Number(s.score||0));
-    const map=students.map(s=>{const mine=att.filter(a=>a.student_id===s.id);return {id:s.id,name:s.profiles?.name||'Aluno',avatar_url:s.profiles?.avatar_url||null,belt:s.belts?.name||'-',total:mine.length,month:mine.filter(a=>new Date(a.checked_in_at)>=monthStart).length,year:mine.filter(a=>new Date(a.checked_in_at)>=yearStart).length,streak:weeklyStreak(mine),iea:latest.get(s.id)||0,achievements:(achRes.data||[]).filter((a:any)=>a.student_id===s.id).length};});
+    const attendanceByStudent=new Map<string,any[]>();for(const a of att){const list=attendanceByStudent.get(a.student_id)||[];list.push(a);attendanceByStudent.set(a.student_id,list)}
+    const achievementCount=new Map<string,number>();for(const a of achRes.data||[])achievementCount.set(a.student_id,(achievementCount.get(a.student_id)||0)+1);
+    const map=students.map(s=>{const mine=attendanceByStudent.get(s.id)||[];let month=0,year=0;for(const a of mine){const d=new Date(a.checked_in_at);if(d>=monthStart)month++;if(d>=yearStart)year++}return {id:s.id,name:s.profiles?.name||'Aluno',avatar_url:s.profiles?.avatar_url||null,belt:s.belts?.name||'-',total:mine.length,month,year,streak:weeklyStreak(mine),iea:latest.get(s.id)||0,achievements:achievementCount.get(s.id)||0};});
     const rank=(key:'total'|'month'|'year'|'iea'|'streak')=>[...map].sort((a,b)=>Number(b[key])-Number(a[key])).map((x,i)=>({...x,rank:i+1}));
     return NextResponse.json({role:g.role,rankings:{geral:rank('total'),mensal:rank('month'),anual:rank('year'),evolucao:rank('iea'),sequencia:rank('streak')},achievements:achRes.data||[],catalog:catalogRes.data||[],monthAward:awardRes.data||null});
   }catch(e:any){return NextResponse.json({error:e.message||'Falha ao carregar gamificação.'},{status:500})}
@@ -51,12 +53,25 @@ export async function POST(req:Request){
     const {data:a}=await g.admin.from('achievements').select('id').eq('code','STUDENT_MONTH').single();if(a)await g.admin.from('student_achievements').upsert({student_id:p.data.student_id,achievement_id:a.id},{onConflict:'student_id,achievement_id'});
     return NextResponse.json({ok:true});
   }
-  const students:any[]=await eligibleStudents(g);for(const s of students){
-    const [{data:att},{data:grads}]=await Promise.all([g.admin.from('attendance').select('checked_in_at').eq('student_id',s.id).order('checked_in_at'),g.admin.from('graduations').select('to:belts!graduations_to_belt_id_fkey(name)').eq('student_id',s.id)]);const rows:any[]=att||[],count=rows.length,codes:string[]=[];
+  const students:any[]=await eligibleStudents(g);
+  const ids=students.map(s=>s.id);
+  if(!ids.length)return NextResponse.json({ok:true});
+  const [{data:att},{data:grads},{data:catalog}]=await Promise.all([
+    g.admin.from('attendance').select('student_id,checked_in_at').in('student_id',ids).order('checked_in_at'),
+    g.admin.from('graduations').select('student_id,to:belts!graduations_to_belt_id_fkey(name)').in('student_id',ids),
+    g.admin.from('achievements').select('id,code').eq('active',true),
+  ]);
+  const attByStudent=new Map<string,any[]>();for(const row of att||[]){const list=attByStudent.get(row.student_id)||[];list.push(row);attByStudent.set(row.student_id,list)}
+  const beltsByStudent=new Map<string,string[]>();for(const row of grads||[]){const list=beltsByStudent.get((row as any).student_id)||[];const name=(row as any).to?.name;if(name)list.push(name);beltsByStudent.set((row as any).student_id,list)}
+  const achievementByCode=new Map((catalog||[]).map((a:any)=>[a.code,a.id]));
+  const earned:{student_id:string;achievement_id:string}[]=[];
+  for(const s of students){
+    const rows=attByStudent.get(s.id)||[],count=rows.length,codes:string[]=[];
     if(count>=1)codes.push('FIRST_CLASS');if(count>=10)codes.push('CLASSES_10');if(count>=50)codes.push('CLASSES_50');if(count>=100)codes.push('CLASSES_100');if(count>=200)codes.push('CLASSES_200');
     if(rows.length>=2&&(new Date(rows[rows.length-1].checked_in_at).getTime()-new Date(rows[0].checked_in_at).getTime())>=365*86400000)codes.push('DAYS_365');if(weeklyStreak(rows)>=8)codes.push('MAX_STREAK');
-    for(const x of grads||[]){const n=(x as any).to?.name;if(n==='Azul')codes.push('BELT_BLUE');if(n==='Roxa')codes.push('BELT_PURPLE');if(n==='Marrom')codes.push('BELT_BROWN');if(n==='Preta')codes.push('BELT_BLACK');}
-    if(codes.length){const {data:ach}=await g.admin.from('achievements').select('id,code').in('code',[...new Set(codes)]);for(const a of ach||[])await g.admin.from('student_achievements').upsert({student_id:s.id,achievement_id:a.id},{onConflict:'student_id,achievement_id'});}
+    for(const n of beltsByStudent.get(s.id)||[]){if(n==='Azul')codes.push('BELT_BLUE');if(n==='Roxa')codes.push('BELT_PURPLE');if(n==='Marrom')codes.push('BELT_BROWN');if(n==='Preta')codes.push('BELT_BLACK');}
+    for(const code of new Set(codes)){const achievement_id=achievementByCode.get(code);if(achievement_id)earned.push({student_id:s.id,achievement_id:String(achievement_id)})}
   }
+  if(earned.length){const {error}=await g.admin.from('student_achievements').upsert(earned,{onConflict:'student_id,achievement_id'});if(error)return NextResponse.json({error:error.message},{status:500})}
   return NextResponse.json({ok:true});
 }

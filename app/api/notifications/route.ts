@@ -22,14 +22,24 @@ async function ctx(){
   return {admin,user,profile};
 }
 
-export async function GET(){
+export async function GET(req:Request){
   const g=await ctx(); if('error' in g) return g.error;
   const now=new Date().toISOString();
+  const countOnly=new URL(req.url).searchParams.get('count')==='1';
+  if(countOnly){
+    const {count,error}=await g.admin.from('notifications')
+      .select('id',{count:'exact',head:true})
+      .eq('user_id',g.user.id)
+      .is('read_at',null)
+      .or(`scheduled_for.is.null,scheduled_for.lte.${now}`);
+    if(error) return NextResponse.json({error:error.message},{status:500});
+    return NextResponse.json({unread:count||0},{headers:{'Cache-Control':'private, max-age=10'}});
+  }
   const {data,error}=await g.admin.from('notifications')
     .select('id,title,message,kind,link_url,read_at,created_at,scheduled_for')
     .eq('user_id',g.user.id)
     .or(`scheduled_for.is.null,scheduled_for.lte.${now}`)
-    .order('created_at',{ascending:false}).limit(150);
+    .order('created_at',{ascending:false}).limit(100);
   if(error) return NextResponse.json({error:error.message},{status:500});
   const items=data||[]; const unread=items.filter(x=>!x.read_at).length;
   return NextResponse.json({items,unread});

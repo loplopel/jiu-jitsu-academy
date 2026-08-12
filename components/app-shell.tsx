@@ -55,7 +55,7 @@ export function AppShell({children}:{children:React.ReactNode}){
     const sb=getSupabaseBrowserClient(); if(!sb){setReady(true);return;}
     const {data:{user}}=await sb.auth.getUser(); if(!user){router.push('/login');return;}
     const {data}=await sb.from('profiles').select('role,name,avatar_url').eq('id',user.id).single();
-    if(data?.role)setRole(data.role as Role); if(data?.name)setName(data.name); if(data?.avatar_url)setAvatar(data.avatar_url); try{const r=await fetch('/api/notifications',{cache:'no-store'});if(r.ok){const j=await r.json();setUnread(j.unread||0)}}catch{} setReady(true);
+    if(data?.role)setRole(data.role as Role); if(data?.name)setName(data.name); if(data?.avatar_url)setAvatar(data.avatar_url); try{const r=await fetch('/api/notifications?count=1',{cache:'no-store'});if(r.ok){const j=await r.json();setUnread(j.unread||0)}}catch{} setReady(true);
   })()},[router]);
   const items=useMemo(()=>menu[role],[role]);
   const mobileItems=useMemo(()=>items.filter(i=>i.mobile).slice(0,5),[items]);
