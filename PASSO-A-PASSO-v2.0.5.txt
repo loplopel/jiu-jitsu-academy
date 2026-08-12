@@ -1,0 +1,39 @@
+JIU-JITSU ACADEMY v2.0.5 — AJUSTES FINOS ESPORTIVOS
+
+1. Preserve obrigatoriamente:
+   .env.local
+   .git
+
+2. Substitua os arquivos do projeto pela v2.0.5.
+
+3. Não há SQL novo obrigatório nesta versão.
+
+4. Rode:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run typecheck
+   npm test
+   npm run build
+   npm run dev
+
+5. Testes principais:
+   PROFESSOR
+   - menu: Início, Minhas aulas, Graduação, Presença / QR e Alunos;
+   - Graduação: conferir treinos realizados, sequência, tempo total, faixa;
+   - aluno com 70 aulas desde a última graduação deve mostrar grau disponível;
+   - aluno com 4 graus deve mostrar apto à troca de faixa.
+
+   ADMIN
+   - Relatórios > Presença: selecionar ano e conferir Nome + Jan a Dez + Total;
+   - Ranking e Eventos não devem aparecer.
+
+   ALUNO
+   - Perfil: Nome, Faixa e Categoria somente leitura;
+   - alterar Peso e salvar;
+   - conferir atualização da categoria;
+   - conferir tabelas de peso e idade abaixo do perfil.
+
+6. Para subir:
+   git add .
+   git commit -m "v2.0.5 ajustes finos esportivos"
+   git push

@@ -28,30 +28,12 @@ export async function POST(){
     }
   }
 
-  if(settings?.event_reminders!==false){
-    const until=new Date(now.getTime()+(settings?.event_reminder_hours||24)*3600000).toISOString();
-    const {data:events}=await g.admin.from('events').select('id,name,event_type,starts_at,location,status').gte('starts_at',now.toISOString()).lte('starts_at',until).neq('status','cancelled');
-    const {data:users}=await g.admin.from('profiles').select('id').eq('active',true);
-    for(const e of events||[]) for(const u of users||[]){
-      const when=new Date(e.starts_at).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-      insertRows.push({user_id:u.id,title:e.event_type==='seminario'?'Seminário próximo':'Competição próxima',message:`${e.name} • ${when}${e.location?` • ${e.location}`:''}`,kind:'event',link_url:'/eventos',sent_by:g.user.id,source_key:`event:${e.id}:${u.id}`,delivered_at:now.toISOString()});
-    }
-  }
-
   if(settings?.birthday_messages!==false){
     const mmdd=`${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     const {data:students}=await g.admin.from('students').select('id,birth_date,profiles!inner(name)').not('birth_date','is',null);
     for(const s of students||[]){
       if(String(s.birth_date).slice(5)!==mmdd) continue;
       insertRows.push({user_id:s.id,title:'Feliz aniversário!',message:'A equipe Conexão Paulista deseja um excelente aniversário e muitos treinos pela frente.',kind:'birthday',link_url:'/meu-painel',sent_by:g.user.id,source_key:`birthday:${now.getFullYear()}:${s.id}`,delivered_at:now.toISOString()});
-    }
-  }
-
-  if(settings?.achievement_messages!==false){
-    const {data:earned}=await g.admin.from('student_achievements').select('id,student_id,earned_at,achievements!inner(name,description)').gte('earned_at',new Date(now.getTime()-30*86400000).toISOString());
-    for(const a of earned||[]){
-      const ach=Array.isArray(a.achievements)?a.achievements[0]:a.achievements as any; if(!ach) continue;
-      insertRows.push({user_id:a.student_id,title:`Conquista: ${ach.name}`,message:ach.description||'Parabéns por mais uma conquista!',kind:'achievement',link_url:'/ranking',sent_by:g.user.id,source_key:`achievement:${a.id}`,delivered_at:now.toISOString()});
     }
   }
 

@@ -1,6 +1,6 @@
 # Jiu-Jitsu Academy — Conexão Paulista v2.0.4
 
-Base final com cadastro esportivo refinado, categoria automática por idade/sexo/peso, QR, evolução, ranking e notificações.
+Base final com cadastro esportivo refinado, categoria automática por idade/sexo/peso, QR, evolução, graduação por frequência e notificações.
 
 # Conexão Paulista Jiu-Jitsu — v2.0
 
@@ -14,8 +14,6 @@ PWA de gestão esportiva para equipe de Jiu-Jitsu, com três perfis: Administrad
 - QR Code dinâmico de 30 segundos e uso único
 - Presença com IP, dispositivo e localização quando autorizada
 - Graduações, histórico e IEA
-- Ranking, conquistas e aluno do mês
-- Eventos, seminários e competições
 - Notificações internas e lembretes
 - Relatórios PDF, Excel e CSV
 - PWA Android/iPhone com offline controlado
@@ -58,3 +56,8 @@ Android: instalar pelo Chrome. iPhone: Safari > Compartilhar > Adicionar à Tela
 A v2.0.4 adiciona índices de banco e reduz trabalho desnecessário nas telas mais pesadas. Após atualizar os arquivos, execute `supabase/v2.0.4-performance.sql` uma vez no SQL Editor do Supabase.
 
 O script não remove dados e pode ser executado novamente com segurança graças a `create index if not exists`.
+
+
+## v2.0.5
+
+Ajustes finais: menu do Professor simplificado, regra de 70 aulas por grau, troca de faixa após 4 graus, relatório mensal de presença e perfil do aluno com edição exclusiva do peso.

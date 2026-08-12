@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  Users, CalendarDays, ScanLine, Trophy, Medal, FileBarChart, Settings, LogOut, Bell, UserRoundCog, Award, UserCircle, GraduationCap, CalendarCheck, House, ChartNoAxesCombined
+  Users, CalendarDays, ScanLine, Medal, FileBarChart, Settings, LogOut, Bell, UserRoundCog, UserCircle, GraduationCap, CalendarCheck, House
 } from 'lucide-react';
 import { getSupabaseBrowserClient } from '@/lib/supabase-browser';
 import type { Role } from '@/lib/types';
@@ -16,8 +16,6 @@ const menu:Record<Role,MenuItem[]> = {
     {href:'/cadastros/professores',label:'Professores',icon:GraduationCap,mobile:true},
     {href:'/aulas',label:'Aulas',icon:CalendarDays,mobile:true},
     {href:'/graduacoes',label:'Graduações',icon:Medal},
-    {href:'/ranking',label:'Ranking e conquistas',icon:Award},
-    {href:'/eventos',label:'Eventos',icon:Trophy},
     {href:'/relatorios',label:'Relatórios',icon:FileBarChart},
     {href:'/notificacoes',label:'Notificações',icon:Bell},
     {href:'/usuarios',label:'Usuários e acessos',icon:UserRoundCog},
@@ -27,22 +25,16 @@ const menu:Record<Role,MenuItem[]> = {
   professor:[
     {href:'/professor',label:'Início',icon:House,mobile:true},
     {href:'/aulas',label:'Minhas aulas',icon:CalendarCheck,mobile:true},
-    {href:'/alunos',label:'Meus alunos',icon:Users,mobile:true},
+    {href:'/graduacoes',label:'Graduação',icon:Medal,mobile:true},
     {href:'/check-in',label:'Presença / QR',icon:ScanLine,mobile:true},
-    {href:'/ranking',label:'Ranking e conquistas',icon:ChartNoAxesCombined,mobile:true},
-    {href:'/graduacoes',label:'Graduações',icon:Medal},
-    {href:'/eventos',label:'Eventos',icon:Trophy},
-    {href:'/notificacoes',label:'Notificações',icon:Bell},
-    {href:'/perfil',label:'Meu perfil',icon:UserCircle},
+    {href:'/alunos',label:'Alunos',icon:Users,mobile:true},
   ],
   aluno:[
     {href:'/meu-painel',label:'Início',icon:House,mobile:true},
     {href:'/aulas',label:'Agenda',icon:CalendarDays,mobile:true},
     {href:'/check-in/scan',label:'Check-in',icon:ScanLine,mobile:true},
-    {href:'/graduacoes',label:'Evolução',icon:Award,mobile:true},
+    {href:'/graduacoes',label:'Evolução',icon:Medal,mobile:true},
     {href:'/perfil',label:'Perfil',icon:UserCircle,mobile:true},
-    {href:'/eventos',label:'Eventos',icon:Trophy},
-    {href:'/ranking',label:'Ranking e conquistas',icon:Award},
     {href:'/notificacoes',label:'Notificações',icon:Bell},
   ],
 };
@@ -55,7 +47,11 @@ export function AppShell({children}:{children:React.ReactNode}){
     const sb=getSupabaseBrowserClient(); if(!sb){setReady(true);return;}
     const {data:{user}}=await sb.auth.getUser(); if(!user){router.push('/login');return;}
     const {data}=await sb.from('profiles').select('role,name,avatar_url').eq('id',user.id).single();
-    if(data?.role)setRole(data.role as Role); if(data?.name)setName(data.name); if(data?.avatar_url)setAvatar(data.avatar_url); try{const r=await fetch('/api/notifications?count=1',{cache:'no-store'});if(r.ok){const j=await r.json();setUnread(j.unread||0)}}catch{} setReady(true);
+    if(data?.role)setRole(data.role as Role); if(data?.name)setName(data.name); if(data?.avatar_url)setAvatar(data.avatar_url);
+    if(data?.role!=='professor'){
+      try{const r=await fetch('/api/notifications?count=1',{cache:'no-store'});if(r.ok){const j=await r.json();setUnread(j.unread||0)}}catch{}
+    }
+    setReady(true);
   })()},[router]);
   const items=useMemo(()=>menu[role],[role]);
   const mobileItems=useMemo(()=>items.filter(i=>i.mobile).slice(0,5),[items]);
@@ -74,7 +70,11 @@ export function AppShell({children}:{children:React.ReactNode}){
     <div className="app-main">
       <header className="topbar">
         <div className="topbar-user">{avatar?<img src={avatar} className="topbar-avatar" alt=""/>:<div className="topbar-avatar placeholder">{name.slice(0,1).toUpperCase()}</div>}<div><strong>{name}</strong><div className="muted topbar-sub">{labels[role]} • Conexão Paulista</div></div></div>
-        <div className="toolbar"><Link href="/notificacoes" className="btn btn-secondary icon-only notification-bell" aria-label="Notificações"><Bell size={16}/>{unread>0&&<span className="notification-badge">{unread>99?'99+':unread}</span>}</Link><Link href="/perfil" className="pill profile-pill">Meu perfil</Link><button className="btn btn-secondary icon-only mobile-logout" onClick={signOut} aria-label="Sair" title="Sair"><LogOut size={16}/></button></div>
+        <div className="toolbar">
+          {role!=='professor'&&<Link href="/notificacoes" className="btn btn-secondary icon-only notification-bell" aria-label="Notificações"><Bell size={16}/>{unread>0&&<span className="notification-badge">{unread>99?'99+':unread}</span>}</Link>}
+          {role!=='professor'&&<Link href="/perfil" className="pill profile-pill">Meu perfil</Link>}
+          <button className="btn btn-secondary icon-only mobile-logout" onClick={signOut} aria-label="Sair" title="Sair"><LogOut size={16}/></button>
+        </div>
       </header>
       <main className="content">{children}</main>
       <nav className="mobile-bottom">{mobileItems.map(({href,label,icon:Icon})=><Link key={href} className={`mobile-bottom-item ${pathname===href?'active':''}`} href={href}><Icon size={20}/><span>{label}</span></Link>)}</nav>
