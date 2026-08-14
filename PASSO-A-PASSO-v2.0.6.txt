@@ -1,0 +1,46 @@
+CONEXÃO PAULISTA JIU-JITSU — v2.0.6
+Presença manual + QR universal iPhone
+
+1. PRESERVE antes de substituir:
+   .env.local
+   .git
+
+2. Substitua os arquivos pela v2.0.6.
+
+3. OPCIONAL / solicitado neste ajuste — deixar somente Osmar Rodrigues como professor:
+   Supabase > SQL Editor > New Query
+   Abra e execute:
+   supabase/v2.0.6-manter-somente-osmar.sql
+
+   O script procura exatamente:
+   Nome: Osmar Rodrigues
+   Login: osmar
+
+   Se não encontrar, ele INTERROMPE sem excluir ninguém.
+
+4. No VS Code:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run typecheck
+   npm test
+   npm run build
+   npm run dev
+
+5. TESTE PRESENÇA MANUAL
+   Professor > Minhas aulas > Inscritos
+   Em aluno Aguardando > Confirmar presença
+   Deve aparecer Presente HH:MM
+   Para presença manual, botão Desfazer fica disponível.
+
+6. TESTE QR IPHONE
+   Aluno > Check-in
+   a) tente câmera interna;
+   b) se necessário, toque Câmera/foto do iPhone;
+   c) fotografe o QR atual do professor;
+   d) presença deve ser validada normalmente.
+
+7. SUBIR
+   git status
+   git add .
+   git commit -m "v2.0.6 presenca manual e QR universal iPhone"
+   git push
