@@ -9,14 +9,36 @@ async function gateClass(id:string){
   if(!user)return {error:NextResponse.json({error:'Não autenticado'},{status:401})} as const;
   const {data:p}=await admin.from('profiles').select('role,active').eq('id',user.id).single();
   if(!p||p.active===false||!['admin','professor'].includes(p.role))return {error:NextResponse.json({error:'Sem permissão'},{status:403})} as const;
-  const {data:cls}=await admin.from('classes').select('professor_id').eq('id',id).single();
+  const {data:cls}=await admin.from('classes').select('professor_id,capacity,status,ends_at').eq('id',id).single();
   if(!cls)return {error:NextResponse.json({error:'Aula não encontrada'},{status:404})} as const;
   if(p.role==='professor'&&cls.professor_id!==user.id)return {error:NextResponse.json({error:'Sem permissão'},{status:403})} as const;
   return {admin,user,profile:p,cls} as const;
 }
 
-export async function GET(_:Request,{params}:{params:Promise<{id:string}>}){
+export async function GET(req:Request,{params}:{params:Promise<{id:string}>}){
   const {id}=await params; const g=await gateClass(id); if('error'in g)return g.error;
+  const url=new URL(req.url);
+  if(url.searchParams.get('mode')==='available'){
+    const {data:reserved}=await g.admin.from('reservations').select('student_id').eq('class_id',id).eq('status','reserved');
+    const reservedIds=(reserved||[]).map((r:any)=>r.student_id);
+    let query=g.admin.from('students').select(`
+      id,status,responsible_professor_id,
+      profiles!students_id_fkey(name,username,avatar_url),
+      belts(name)
+    `).eq('status','ativo').order('id');
+    if(g.profile.role==='professor')query=query.eq('responsible_professor_id',g.user.id);
+    if(reservedIds.length)query=query.not('id','in',`(${reservedIds.join(',')})`);
+    const {data,error}=await query;
+    if(error)return NextResponse.json({error:error.message},{status:500});
+    return NextResponse.json((data||[]).map((s:any)=>({
+      id:s.id,
+      name:s.profiles?.name||'Aluno',
+      login:s.profiles?.username||'',
+      avatar_url:s.profiles?.avatar_url||null,
+      belt:s.belts?.name||'-',
+    })).sort((a:any,b:any)=>a.name.localeCompare(b.name,'pt-BR')));
+  }
+
   const {data:reservations,error:rerr}=await g.admin.from('reservations').select(`
     id,status,created_at,student_id,
     students!reservations_student_id_fkey(
@@ -42,12 +64,25 @@ export async function GET(_:Request,{params}:{params:Promise<{id:string}>}){
   return NextResponse.json(rows);
 }
 
-const actionSchema=z.object({student_id:z.string().uuid(),action:z.enum(['confirm','remove'])});
+const actionSchema=z.object({student_id:z.string().uuid(),action:z.enum(['confirm','remove','add'])});
 export async function POST(req:Request,{params}:{params:Promise<{id:string}>}){
   const {id}=await params; const g=await gateClass(id); if('error'in g)return g.error;
   const parsed=actionSchema.safeParse(await req.json());
   if(!parsed.success)return NextResponse.json({error:'Dados inválidos.'},{status:400});
   const {student_id,action}=parsed.data;
+
+  if(action==='add'){
+    if(g.cls.status==='cancelled'||new Date(g.cls.ends_at)<new Date())return NextResponse.json({error:'Esta aula não aceita novos alunos.'},{status:409});
+    const {data:student}=await g.admin.from('students').select('id,status,responsible_professor_id').eq('id',student_id).maybeSingle();
+    if(!student||student.status!=='ativo')return NextResponse.json({error:'Aluno não está ativo.'},{status:409});
+    if(g.profile.role==='professor'&&student.responsible_professor_id!==g.user.id)return NextResponse.json({error:'Este aluno não está vinculado a você.'},{status:403});
+    const {count}=await g.admin.from('reservations').select('*',{count:'exact',head:true}).eq('class_id',id).eq('status','reserved');
+    if((count||0)>=Number(g.cls.capacity||0))return NextResponse.json({error:'Aula lotada.'},{status:409});
+    const {error}=await g.admin.from('reservations').upsert({class_id:id,student_id,status:'reserved',cancelled_at:null},{onConflict:'class_id,student_id'});
+    if(error)return NextResponse.json({error:'Não foi possível adicionar o aluno à aula.'},{status:500});
+    return NextResponse.json({message:'Aluno adicionado à aula.'});
+  }
+
   const {data:reservation}=await g.admin.from('reservations').select('id,status').eq('class_id',id).eq('student_id',student_id).maybeSingle();
   if(!reservation||reservation.status!=='reserved')return NextResponse.json({error:'O aluno não possui reserva ativa nesta aula.'},{status:409});
 

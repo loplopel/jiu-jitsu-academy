@@ -1,12 +1,13 @@
 'use client';
 import {useEffect,useMemo,useState} from 'react';
 import {AppShell} from '@/components/app-shell';
-import {CalendarDays,Users,Clock,Plus,QrCode,UserCheck,Edit3,XCircle,Lock,RotateCcw,CheckCircle2} from 'lucide-react';
+import {CalendarDays,Users,Clock,Plus,QrCode,UserCheck,Edit3,XCircle,Lock,RotateCcw,CheckCircle2,Search,UserPlus} from 'lucide-react';
 
 type Role='admin'|'professor'|'aluno';
 type C={id:string;title:string;starts_at:string;ends_at:string;capacity:number;status:'open'|'closed'|'cancelled';professor_id:string;professor_name:string;notes?:string|null;reservations:number;my_reservation_status?:string|null};
 type Professor={id:string;name:string;username?:string;contact_email?:string};
 type Participant={id:string;student_id:string;name:string;login?:string;contact_email?:string;phone:string;avatar_url?:string|null;belt:string;degrees:number;present:boolean;checked_in_at?:string|null;manual?:boolean};
+type AvailableStudent={id:string;name:string;login?:string;avatar_url?:string|null;belt:string};
 
 const statusLabel:Record<C['status'],string>={open:'Aberta',closed:'Fechada',cancelled:'Cancelada'};
 function localInput(iso:string){const d=new Date(iso);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());return d.toISOString().slice(0,16)}
@@ -15,6 +16,7 @@ export default function Page(){
   const[rows,setRows]=useState<C[]>([]),[role,setRole]=useState<Role>('aluno'),[userId,setUserId]=useState('');
   const[professors,setProfessors]=useState<Professor[]>([]),[open,setOpen]=useState(false),[msg,setMsg]=useState(''),[busy,setBusy]=useState(false);
   const[history,setHistory]=useState(false),[editing,setEditing]=useState<C|null>(null),[participantsFor,setParticipantsFor]=useState<C|null>(null),[participants,setParticipants]=useState<Participant[]>([]);
+  const[participantQ,setParticipantQ]=useState(''),[available,setAvailable]=useState<AvailableStudent[]>([]),[addStudentId,setAddStudentId]=useState(''),[showAddStudent,setShowAddStudent]=useState(false);
   const[form,setForm]=useState({title:'Jiu-Jitsu Adulto',starts_at:'',ends_at:'',capacity:'30',professor_id:'',notes:''});
 
   async function load(){
@@ -41,7 +43,9 @@ export default function Page(){
   function startEdit(a:C){setEditing(a);setForm({title:a.title,starts_at:localInput(a.starts_at),ends_at:localInput(a.ends_at),capacity:String(a.capacity),professor_id:a.professor_id,notes:a.notes||''});setOpen(true);window.scrollTo({top:0,behavior:'smooth'})}
   async function setStatus(a:C,status:C['status']){if(!confirm(status==='cancelled'?'Cancelar esta aula?':'Alterar o status desta aula?'))return;setBusy(true);const r=await fetch(`/api/classes/${a.id}`,{method:'PATCH',headers:{'content-type':'application/json'},body:JSON.stringify({status})});const j=await r.json();setBusy(false);setMsg(r.ok?(status==='closed'?'Aula fechada.':status==='open'?'Aula reaberta.':'Aula cancelada.'):(j.error||'Falha ao alterar aula.'));if(r.ok)await load()}
   async function reserve(a:C,cancel=false){setBusy(true);const r=await fetch('/api/reservations',{method:cancel?'DELETE':'POST',headers:{'content-type':'application/json'},body:JSON.stringify({class_id:a.id})});const j=await r.json();setBusy(false);setMsg(j.message||j.error||'Operação concluída.');if(r.ok)await load()}
-  async function showParticipants(a:C){setParticipantsFor(a);setParticipants([]);const r=await fetch(`/api/classes/${a.id}/participants`,{cache:'no-store'});const j=await r.json();if(r.ok)setParticipants(j);else setMsg(j.error||'Não foi possível carregar os inscritos.')}
+  async function showParticipants(a:C){setParticipantsFor(a);setParticipants([]);setParticipantQ('');setShowAddStudent(false);setAddStudentId('');const r=await fetch(`/api/classes/${a.id}/participants`,{cache:'no-store'});const j=await r.json();if(r.ok)setParticipants(j);else setMsg(j.error||'Não foi possível carregar os inscritos.')}
+  async function loadAvailable(){if(!participantsFor)return;const r=await fetch(`/api/classes/${participantsFor.id}/participants?mode=available`,{cache:'no-store'});const j=await r.json();if(r.ok)setAvailable(j);else setMsg(j.error||'Não foi possível carregar os alunos disponíveis.')}
+  async function addStudentToClass(){if(!participantsFor||!addStudentId)return;setBusy(true);const r=await fetch(`/api/classes/${participantsFor.id}/participants`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({student_id:addStudentId,action:'add'})});const j=await r.json().catch(()=>({}));setBusy(false);setMsg(j.message||j.error||'Operação concluída.');if(r.ok){setAddStudentId('');setShowAddStudent(false);await showParticipants(participantsFor);}}
   async function manualAttendance(p:Participant,action:'confirm'|'remove'){if(!participantsFor)return;if(action==='remove'&&!confirm(`Desfazer a presença manual de ${p.name}?`))return;setBusy(true);const r=await fetch(`/api/classes/${participantsFor.id}/participants`,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({student_id:p.student_id,action})});const j=await r.json().catch(()=>({}));setBusy(false);setMsg(j.message||j.error||'Operação concluída.');if(r.ok)await showParticipants(participantsFor);}
   function canManage(a:C){return role==='admin'||(role==='professor'&&a.professor_id===userId)}
 
@@ -83,6 +87,22 @@ export default function Page(){
         </div>}
       </article>})}</div>}
 
-    {participantsFor&&<div className="modal-backdrop" onClick={()=>setParticipantsFor(null)}><div className="card modal-card" onClick={e=>e.stopPropagation()}><div className="section-title"><div><h2>Inscritos — {participantsFor.title}</h2><div className="muted">{participants.length} reserva(s) ativa(s)</div></div><button className="btn btn-secondary" onClick={()=>setParticipantsFor(null)}>Fechar</button></div>{!participants.length?<div className="empty-state">Nenhum aluno reservado.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Faixa</th><th>Contato</th><th>Presença</th></tr></thead><tbody>{participants.map(p=><tr key={p.id}><td><div className="student-cell">{p.avatar_url?<img className="student-avatar" src={p.avatar_url} alt=""/>:<span className="student-avatar mini">{p.name.slice(0,1)}</span>}<div><strong>{p.name}</strong><div className="muted small-text">{p.login?`Login: ${p.login}`:(p.contact_email||'')}</div></div></div></td><td>{p.belt}{p.degrees?` • ${p.degrees} grau(s)`:''}</td><td>{p.phone||'-'}</td><td>{p.present?<div className="toolbar" style={{gap:8,flexWrap:'wrap'}}><span className="status-badge status-ativo">Presente {p.checked_in_at?new Date(p.checked_in_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):''}</span>{p.manual&&<button className="btn btn-secondary" disabled={busy} onClick={()=>void manualAttendance(p,'remove')}>Desfazer</button>}</div>:<button className="btn btn-primary" disabled={busy} onClick={()=>void manualAttendance(p,'confirm')}><UserCheck size={15}/> Confirmar presença</button>}</td></tr>)}</tbody></table></div>}</div></div>}
+    {participantsFor&&<div className="modal-backdrop" onClick={()=>setParticipantsFor(null)}><div className="card modal-card attendance-modal" onClick={e=>e.stopPropagation()}>
+      <div className="section-title"><div><h2>Inscritos — {participantsFor.title}</h2><div className="muted">{participants.length} reserva(s) ativa(s)</div></div><button className="btn btn-secondary" onClick={()=>setParticipantsFor(null)}>Fechar</button></div>
+      <div className="attendance-summary">
+        <div><span>Presentes</span><strong>{participants.filter(p=>p.present).length}</strong></div>
+        <div><span>Aguardando</span><strong>{participants.filter(p=>!p.present).length}</strong></div>
+        <div><span>Total</span><strong>{participants.length}</strong></div>
+      </div>
+      <div className="attendance-toolbar">
+        <label className="attendance-search"><Search size={16}/><input value={participantQ} onChange={e=>setParticipantQ(e.target.value)} placeholder="Buscar aluno..."/></label>
+        <button className="btn btn-secondary" onClick={()=>{setShowAddStudent(v=>!v);if(!showAddStudent)void loadAvailable()}}><UserPlus size={16}/> Adicionar aluno</button>
+      </div>
+      {showAddStudent&&<div className="add-student-box"><div><strong>Aluno chegou sem reserva?</strong><div className="muted small-text">Adicione à aula e depois confirme a presença normalmente.</div></div><div className="toolbar"><select className="input" value={addStudentId} onChange={e=>setAddStudentId(e.target.value)}><option value="">Selecione um aluno</option>{available.map(s=><option key={s.id} value={s.id}>{s.name} • {s.belt}</option>)}</select><button className="btn btn-primary" disabled={busy||!addStudentId} onClick={()=>void addStudentToClass()}>Adicionar</button></div></div>}
+      {!participants.length?<div className="empty-state">Nenhum aluno reservado.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Faixa</th><th>Contato</th><th>Presença</th></tr></thead><tbody>{participants
+        .filter(p=>!participantQ||`${p.name} ${p.login||''}`.toLowerCase().includes(participantQ.toLowerCase()))
+        .sort((a,b)=>Number(a.present)-Number(b.present)||a.name.localeCompare(b.name,'pt-BR'))
+        .map(p=><tr key={p.id}><td><div className="student-cell">{p.avatar_url?<img className="student-avatar" src={p.avatar_url} alt=""/>:<span className="student-avatar mini">{p.name.slice(0,1)}</span>}<div><strong>{p.name}</strong><div className="muted small-text">{p.login?`Login: ${p.login}`:(p.contact_email||'')}</div></div></div></td><td>{p.belt}{p.degrees?` • ${p.degrees} grau(s)`:''}</td><td>{p.phone||'-'}</td><td>{p.present?<div className="toolbar" style={{gap:8,flexWrap:'wrap'}}><span className="status-badge status-ativo">Presente {p.checked_in_at?new Date(p.checked_in_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):''}</span>{p.manual&&<button className="btn btn-secondary" disabled={busy} onClick={()=>void manualAttendance(p,'remove')}>Desfazer</button>}</div>:<button className="btn btn-primary" disabled={busy} onClick={()=>void manualAttendance(p,'confirm')}><UserCheck size={15}/> Confirmar presença</button>}</td></tr>)}</tbody></table></div>}
+    </div></div>}
   </AppShell>
 }

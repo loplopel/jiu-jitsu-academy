@@ -1,0 +1,25 @@
+JIU-JITSU ACADEMY v2.0.7 — AULA INTELIGENTE
+
+1. Preserve .env.local e .git.
+2. Substitua os arquivos da v2.0.6 pelos desta versão.
+3. Não há SQL novo obrigatório.
+4. Rode:
+   npm install
+   Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+   npm run typecheck
+   npm test
+   npm run build
+   npm run dev
+
+TESTE PRINCIPAL
+Professor > Minhas aulas > Inscritos
+- confira os contadores Presentes / Aguardando / Total;
+- pesquise um aluno;
+- confirme presença manual;
+- use Adicionar aluno para incluir quem chegou sem reserva;
+- confirme que a lotação máxima continua sendo respeitada.
+
+Se tudo passar:
+   git add .
+   git commit -m "v2.0.7 aula inteligente e chamada rapida"
+   git push
