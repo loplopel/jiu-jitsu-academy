@@ -1,4 +1,9 @@
-# Jiu-Jitsu Academy — Conexão Paulista v2.0.4
+# Jiu-Jitsu Academy — Conexão Paulista v2.0.8
+
+## v2.0.8 — Painel do Aluno + Progresso de Graduação
+
+O painel do aluno prioriza próxima aula, reserva/check-in, frequência anual e o progresso de 70 aulas por grau. O perfil permanece bloqueado para dados esportivos, deixando apenas o peso editável. Professores e administradores passam a ver o progresso de graduação diretamente na lista de alunos. Não há SQL novo obrigatório nesta versão.
+
 
 Base final com cadastro esportivo refinado, categoria automática por idade/sexo/peso, QR, evolução, graduação por frequência e notificações.
 

@@ -15,7 +15,7 @@ function localInput(iso:string){const d=new Date(iso);d.setMinutes(d.getMinutes(
 export default function Page(){
   const[rows,setRows]=useState<C[]>([]),[role,setRole]=useState<Role>('aluno'),[userId,setUserId]=useState('');
   const[professors,setProfessors]=useState<Professor[]>([]),[open,setOpen]=useState(false),[msg,setMsg]=useState(''),[busy,setBusy]=useState(false);
-  const[history,setHistory]=useState(false),[editing,setEditing]=useState<C|null>(null),[participantsFor,setParticipantsFor]=useState<C|null>(null),[participants,setParticipants]=useState<Participant[]>([]);
+  const[history,setHistory]=useState(false),[studentView,setStudentView]=useState<'today'|'upcoming'|'reserved'|'history'>('upcoming'),[editing,setEditing]=useState<C|null>(null),[participantsFor,setParticipantsFor]=useState<C|null>(null),[participants,setParticipants]=useState<Participant[]>([]);
   const[participantQ,setParticipantQ]=useState(''),[available,setAvailable]=useState<AvailableStudent[]>([]),[addStudentId,setAddStudentId]=useState(''),[showAddStudent,setShowAddStudent]=useState(false);
   const[form,setForm]=useState({title:'Jiu-Jitsu Adulto',starts_at:'',ends_at:'',capacity:'30',professor_id:'',notes:''});
 
@@ -30,7 +30,7 @@ export default function Page(){
   useEffect(()=>{void load()},[]);
   const staff=role==='admin'||role==='professor';
   const now=Date.now();
-  const visible=useMemo(()=>rows.filter(a=>history?new Date(a.ends_at).getTime()<now||a.status!=='open':new Date(a.ends_at).getTime()>=now&&a.status!=='cancelled'),[rows,history,now]);
+  const visible=useMemo(()=>{if(role!=='aluno')return rows.filter(a=>history?new Date(a.ends_at).getTime()<now||a.status!=='open':new Date(a.ends_at).getTime()>=now&&a.status!=='cancelled');const today=new Date();const sameDay=(iso:string)=>{const d=new Date(iso);return d.getFullYear()===today.getFullYear()&&d.getMonth()===today.getMonth()&&d.getDate()===today.getDate()};if(studentView==='today')return rows.filter(a=>sameDay(a.starts_at)&&a.status!=='cancelled');if(studentView==='reserved')return rows.filter(a=>a.my_reservation_status==='reserved'&&new Date(a.ends_at).getTime()>=now&&a.status!=='cancelled');if(studentView==='history')return rows.filter(a=>new Date(a.ends_at).getTime()<now||a.status==='closed');return rows.filter(a=>new Date(a.ends_at).getTime()>=now&&a.status!=='cancelled');},[rows,history,now,role,studentView]);
 
   function resetForm(){setForm({title:'Jiu-Jitsu Adulto',starts_at:'',ends_at:'',capacity:'30',professor_id:'',notes:''});setEditing(null)}
   async function save(e:React.FormEvent){
@@ -66,9 +66,15 @@ export default function Page(){
 
     {msg&&<div className={`notice ${msg.toLowerCase().includes('falha')||msg.toLowerCase().includes('não')||msg.toLowerCase().includes('invál')?'error':'success'}`} style={{marginBottom:14}}>{msg}</div>}
 
-    <div className="toolbar" style={{marginBottom:16}}><button className={`btn ${!history?'btn-primary':'btn-secondary'}`} onClick={()=>setHistory(false)}>Próximas aulas</button><button className={`btn ${history?'btn-primary':'btn-secondary'}`} onClick={()=>setHistory(true)}>Histórico</button><button className="btn btn-secondary" onClick={()=>void load()}><RotateCcw size={15}/> Atualizar</button></div>
+    {role==='aluno'?<div className="toolbar student-class-tabs" style={{marginBottom:16}}>
+      <button className={`btn ${studentView==='today'?'btn-primary':'btn-secondary'}`} onClick={()=>setStudentView('today')}>Hoje</button>
+      <button className={`btn ${studentView==='upcoming'?'btn-primary':'btn-secondary'}`} onClick={()=>setStudentView('upcoming')}>Próximas</button>
+      <button className={`btn ${studentView==='reserved'?'btn-primary':'btn-secondary'}`} onClick={()=>setStudentView('reserved')}>Reservadas</button>
+      <button className={`btn ${studentView==='history'?'btn-primary':'btn-secondary'}`} onClick={()=>setStudentView('history')}>Realizadas</button>
+      <button className="btn btn-secondary" onClick={()=>void load()}><RotateCcw size={15}/> Atualizar</button>
+    </div>:<div className="toolbar" style={{marginBottom:16}}><button className={`btn ${!history?'btn-primary':'btn-secondary'}`} onClick={()=>setHistory(false)}>Próximas aulas</button><button className={`btn ${history?'btn-primary':'btn-secondary'}`} onClick={()=>setHistory(true)}>Histórico</button><button className="btn btn-secondary" onClick={()=>void load()}><RotateCcw size={15}/> Atualizar</button></div>}
 
-    {!visible.length?<div className="empty-state">{history?'Nenhuma aula no histórico.':'Nenhuma aula disponível.'}</div>:<div className="grid grid-3">{visible.map(a=>{
+    {!visible.length?<div className="empty-state">{role==='aluno'?(studentView==='reserved'?'Você não tem aulas reservadas neste momento.':studentView==='history'?'Nenhum treino realizado no histórico.':studentView==='today'?'Nenhuma aula para hoje.':'Nenhuma próxima aula disponível.'):(history?'Nenhuma aula no histórico.':'Nenhuma aula disponível.')}</div>:<div className="grid grid-3">{visible.map(a=>{
       const pct=Math.min(100,Math.round((a.reservations||0)/Math.max(a.capacity,1)*100)),full=(a.reservations||0)>=a.capacity,reserved=a.my_reservation_status==='reserved';
       const started=Date.now()>=new Date(a.starts_at).getTime(),ended=Date.now()>new Date(a.ends_at).getTime();
       return <article className="card class-card" key={a.id}>

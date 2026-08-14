@@ -1,0 +1,38 @@
+JIU-JITSU ACADEMY — v2.0.8
+PAINEL DO ALUNO + PROGRESSO DE GRADUAÇÃO
+
+1. Preserve os arquivos .env.local e a pasta .git.
+2. Substitua os arquivos da versão anterior pelos arquivos deste pacote.
+3. Não é necessário executar SQL novo.
+4. Execute:
+
+npm install
+Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
+npm run typecheck
+npm test
+npm run build
+npm run dev
+
+TESTES PRINCIPAIS
+
+ALUNO
+- Abrir Início.
+- Confirmar próxima aula.
+- Reservar/cancelar pelo painel.
+- Conferir barra de progresso para 70 aulas.
+- Conferir frequência mensal e anual.
+- Abrir Perfil e confirmar que apenas Peso é editável.
+- Conferir destaque da categoria atual na tabela de peso.
+
+PROFESSOR
+- Abrir Alunos.
+- Conferir coluna Progresso.
+- Aluno abaixo de 70: mostra contagem e faltantes.
+- Aluno com 70: mostra Grau disponível.
+- Aluno com 4 graus: mostra Troca de faixa.
+
+PUBLICAÇÃO
+
+git add .
+git commit -m "v2.0.8 painel do aluno e progresso de graduacao"
+git push
