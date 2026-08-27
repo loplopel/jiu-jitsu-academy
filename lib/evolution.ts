@@ -43,9 +43,22 @@ export function buildEvolution(student:StudentLike,attendance:AttendanceLike[],e
 
   const attendanceSinceGraduation=mine.filter(d=>d>=lastGrad).length;
   const currentDegrees=Math.max(0,Math.min(4,Number(student.degrees||0)));
-  const beltEligible=currentDegrees>=4;
-  const degreeEligible=!beltEligible&&attendanceSinceGraduation>=70;
-  const classesToNextDegree=beltEligible?0:Math.max(0,70-attendanceSinceGraduation);
+
+  const isBlackBelt =
+    (student.belts?.name || '').toLowerCase().includes('preta');
+
+  const beltEligible =
+    !isBlackBelt && currentDegrees>=4;
+
+  const degreeEligible =
+    !isBlackBelt &&
+    !beltEligible &&
+    attendanceSinceGraduation>=70;
+
+  const classesToNextDegree =
+    isBlackBelt || beltEligible
+      ? 0
+      : Math.max(0,70-attendanceSinceGraduation);
 
   return {
     score,status:ieaStatus(score),attendance30:count30,attendance60:count60,attendance90:count90,totalAttendance:mine.length,streakWeeks,trainingMonths,monthsInBelt,eventCount,competitionCount,graduationCount,lastTrainingAt:lastTraining?.toISOString()||null,daysAbsent,risk,
