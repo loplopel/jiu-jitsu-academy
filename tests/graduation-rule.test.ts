@@ -15,4 +15,14 @@ describe('regra de graduação por aulas',()=>{
     expect(evo.beltEligible).toBe(true);
     expect(evo.degreeEligible).toBe(false);
   });
+  it('faixa preta mantém presença mas não usa a regra de 70 aulas',()=>{
+    const now=new Date('2026-08-12T12:00:00Z');
+    const attendance=Array.from({length:140},(_,i)=>({student_id:'s1',checked_in_at:new Date(Date.UTC(2026,0,1+i)).toISOString()}));
+    const evo=buildEvolution({id:'s1',start_date:'2025-01-01',degrees:4,belts:{name:'Preta',minimum_months:0,sort_order:5}},attendance,[],[],now);
+    expect(evo.totalAttendance).toBe(140);
+    expect(evo.isBlackBelt).toBe(true);
+    expect(evo.degreeEligible).toBe(false);
+    expect(evo.classesToNextDegree).toBe(0);
+  });
+
 });

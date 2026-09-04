@@ -5,14 +5,63 @@ import {Plus,RefreshCw,Pencil,Search,Upload,UserRound,Filter,Trash2,KeyRound} fr
 import {allowedBelts,competitionCategory} from '@/lib/competition-category';
 
 type Opt={id:string;name:string;contact_email?:string};
+
 type Row={
-  id:string;cpf?:string;whatsapp?:string;birth_date?:string;sex?:string;weight?:number;height?:number;degrees?:number;start_date?:string;last_graduation_date?:string;notes?:string;emergency_contact?:string;emergency_name?:string;emergency_phone?:string;emergency_relation?:string;injuries?:string;status?:string;category_id?:string;responsible_professor_id?:string;belt_id?:string;
-  profiles?:{name?:string;username?:string;contact_email?:string;phone?:string;avatar_url?:string}|null;belts?:{name?:string}|null;categories?:{name?:string}|null;responsible?:{name?:string}|null
+  id:string;
+  cpf?:string;
+  whatsapp?:string;
+  birth_date?:string;
+  sex?:string;
+  weight?:number;
+  height?:number;
+  degrees?:number;
+  start_date?:string;
+  last_graduation_date?:string;
+  notes?:string;
+  emergency_contact?:string;
+  emergency_name?:string;
+  emergency_phone?:string;
+  emergency_relation?:string;
+  injuries?:string;
+  status?:string;
+  category_id?:string;
+  responsible_professor_id?:string;
+  additional_professor_ids?:string[];
+  belt_id?:string;
+
+  profiles?:{
+    name?:string;
+    username?:string;
+    contact_email?:string;
+    phone?:string;
+    avatar_url?:string;
+  }|null;
+
+  belts?:{
+    name?:string;
+  }|null;
+
+  categories?:{
+    name?:string;
+  }|null;
+
+  responsible?:{
+    name?:string;
+  }|null;
+
+  additional_professors?:string[];
 };
-const empty={name:'',username:'',password:'',contact_email:'',phone:'',whatsapp:'',avatar_url:'',cpf:'',birth_date:'',sex:'',weight:'',height:'',category_id:'',responsible_professor_id:'',start_date:'',belt_id:'',degrees:0,last_graduation_date:'',notes:'',emergency_contact:'',emergency_name:'',emergency_phone:'',emergency_relation:'',injuries:'',status:'ativo'};
+const empty={name:'',username:'',password:'',contact_email:'',phone:'',whatsapp:'',avatar_url:'',cpf:'',birth_date:'',sex:'',weight:'',height:'',category_id:'',responsible_professor_id:'',start_date:'',belt_id:'',degrees:0,last_graduation_date:'',notes:'',emergency_contact:'',emergency_name:'',emergency_phone:'',emergency_relation:'',injuries:'',status:'ativo',additional_professor_ids:[]};
 
 export default function Page(){
-  const[rows,setRows]=useState<Row[]>([]); const[progress,setProgress]=useState<Record<string,{attendanceSinceGraduation:number;classesToNextDegree:number;degreeEligible:boolean;beltEligible:boolean}>>({}); const[opts,setOpts]=useState<{belts:Opt[];categories:Opt[];professors:Opt[]}>({belts:[],categories:[],professors:[]});
+  const[rows,setRows]=useState<Row[]>([]);
+const[progress,setProgress]=useState<Record<string,{
+  attendanceSinceGraduation:number;
+  classesToNextDegree:number;
+  degreeEligible:boolean;
+  beltEligible:boolean;
+  isBlackBelt:boolean;
+}>>({}); const[opts,setOpts]=useState<{belts:Opt[];categories:Opt[];professors:Opt[]}>({belts:[],categories:[],professors:[]});
   const[open,setOpen]=useState(false); const[editing,setEditing]=useState<string|null>(null); const[isAdmin,setIsAdmin]=useState(false); const[msg,setMsg]=useState(''); const[form,setForm]=useState<any>(empty); const[photo,setPhoto]=useState<File|null>(null); const[saving,setSaving]=useState(false);
   const[q,setQ]=useState(''); const[status,setStatus]=useState('todos'); const[belt,setBelt]=useState('todos');
   const category=useMemo(()=>competitionCategory(form.birth_date,form.sex,form.weight===''?null:Number(form.weight)),[form.birth_date,form.sex,form.weight]);
@@ -34,7 +83,7 @@ export default function Page(){
 
   function beginNew(){setEditing(null);setForm({...empty,start_date:new Date().toISOString().slice(0,10)});setPhoto(null);setMsg('');setOpen(true)}
   function edit(x:Row){setEditing(x.id);setPhoto(null);setForm({
-    name:x.profiles?.name||'',username:x.profiles?.username||'',password:'',contact_email:x.profiles?.contact_email||'',phone:x.profiles?.phone||'',whatsapp:x.whatsapp||'',avatar_url:x.profiles?.avatar_url||'',cpf:x.cpf||'',birth_date:x.birth_date||'',sex:x.sex||'',weight:x.weight??'',height:x.height??'',category_id:x.category_id||'',responsible_professor_id:x.responsible_professor_id||'',start_date:x.start_date||'',belt_id:x.belt_id||'',degrees:x.degrees??0,last_graduation_date:x.last_graduation_date||'',notes:x.notes||'',emergency_contact:x.emergency_contact||'',emergency_name:x.emergency_name||'',emergency_phone:x.emergency_phone||'',emergency_relation:x.emergency_relation||'',injuries:x.injuries||'',status:x.status||'ativo'
+    name:x.profiles?.name||'',username:x.profiles?.username||'',password:'',contact_email:x.profiles?.contact_email||'',phone:x.profiles?.phone||'',whatsapp:x.whatsapp||'',avatar_url:x.profiles?.avatar_url||'',cpf:x.cpf||'',birth_date:x.birth_date||'',sex:x.sex||'',weight:x.weight??'',height:x.height??'',category_id:x.category_id||'',responsible_professor_id:x.responsible_professor_id||'',additional_professor_ids:x.additional_professor_ids||[],start_date:x.start_date||'',belt_id:x.belt_id||'',degrees:x.degrees??0,last_graduation_date:x.last_graduation_date||'',notes:x.notes||'',emergency_contact:x.emergency_contact||'',emergency_name:x.emergency_name||'',emergency_phone:x.emergency_phone||'',emergency_relation:x.emergency_relation||'',injuries:x.injuries||'',status:x.status||'ativo'
   });setOpen(true)}
 
   async function uploadPhoto(studentId:string){
@@ -66,7 +115,7 @@ export default function Page(){
   async function save(e:React.FormEvent){
     e.preventDefault(); setSaving(true); setMsg('Salvando aluno...');
     try{
-      const payload={...form,id:editing||undefined,weight:form.weight===''?null:Number(form.weight),height:form.height===''?null:Number(form.height),degrees:Number(form.degrees),category_id:form.category_id||null,responsible_professor_id:form.responsible_professor_id||null,belt_id:form.belt_id||null,category_name:category.label||null};
+      const payload={...form,id:editing||undefined,weight:form.weight===''?null:Number(form.weight),height:form.height===''?null:Number(form.height),degrees:Number(form.degrees),category_id:form.category_id||null,responsible_professor_id:form.responsible_professor_id||null,additional_professor_ids:form.additional_professor_ids||[],belt_id:form.belt_id||null,category_name:category.label||null};
       const r=await fetch('/api/students',{method:editing?'PATCH':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)}); const j=await r.json();
       if(!r.ok)throw new Error(j.error||'Falha ao salvar aluno');
       const id=editing||j.id; if(photo&&id)await uploadPhoto(id);
@@ -95,7 +144,21 @@ export default function Page(){
       <div className="form-section-title">Vínculos esportivos</div>
       <div className="grid grid-3">
         <div><label className="label">Categoria</label><div className="input category-readonly">{category.label||'Informe nascimento, sexo e peso'}</div><div className="muted small-text" style={{marginTop:6}}>{category.age!==null&&category.age<16?'A tabela enviada não traz pesos infantis; nesta idade a categoria usa somente a faixa etária.':'Calculada automaticamente por idade, sexo e peso.'}</div></div>
-        <Select l="Professor responsável" v={form.responsible_professor_id} set={v=>setForm({...form,responsible_professor_id:v})} items={opts.professors}/>
+        <Select l="Professor responsável" v={form.responsible_professor_id} set={v=>setForm({...form,responsible_professor_id:v,additional_professor_ids:(form.additional_professor_ids||[]).filter((id:string)=>id!==v)})} items={opts.professors}/>
+        <div className="additional-professors-field">
+          <label className="label">Professores adicionais</label>
+          <div className="additional-professors-list">
+            {opts.professors.filter(p=>p.id!==form.responsible_professor_id).map(p=>{
+              const checked=(form.additional_professor_ids||[]).includes(p.id);
+              return <label key={p.id} className={`additional-professor-option ${checked?'checked':''}`}>
+                <input type="checkbox" checked={checked} onChange={e=>setForm({...form,additional_professor_ids:e.target.checked?[...(form.additional_professor_ids||[]),p.id]:(form.additional_professor_ids||[]).filter((id:string)=>id!==p.id)})}/>
+                <span>{p.name}</span>
+              </label>;
+            })}
+            {!opts.professors.filter(p=>p.id!==form.responsible_professor_id).length&&<span className="muted small-text">Cadastre professores ativos para criar vínculos adicionais.</span>}
+          </div>
+          <div className="muted small-text">O professor responsável acompanha a evolução. Professores adicionais podem ter o aluno em suas aulas e registrar presença.</div>
+        </div>
         <Select l="Faixa" v={form.belt_id} set={v=>setForm({...form,belt_id:v})} items={permittedBelts}/>
         <F l="Graus" v={form.degrees} set={v=>setForm({...form,degrees:Number(v)})} type="number" min="0" max="6"/>
         <F l="Data de início" v={form.start_date} set={v=>setForm({...form,start_date:v})} type="date" req/>
@@ -108,7 +171,7 @@ export default function Page(){
 
     <div className="card" style={{padding:18}}><div className="student-toolbar"><div className="search-wrap"><Search size={16}/><input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar por nome, login, CPF ou telefone"/></div><div className="filter-group"><Filter size={15}/><select className="input compact" value={status} onChange={e=>setStatus(e.target.value)}><option value="todos">Todos os status</option><option value="ativo">Ativos</option><option value="inativo">Inativos</option><option value="bloqueado">Bloqueados</option></select><select className="input compact" value={belt} onChange={e=>setBelt(e.target.value)}><option value="todos">Todas as faixas</option>{opts.belts.map(x=><option key={x.id} value={x.id}>{x.name}</option>)}</select></div><button className="btn btn-secondary" onClick={load}><RefreshCw size={14}/> Atualizar</button></div>
       <div className="student-summary"><span><strong>{filtered.length}</strong> exibido(s)</span><span><strong>{rows.filter(x=>x.status==='ativo').length}</strong> ativo(s)</span><span><strong>{rows.filter(x=>x.status==='bloqueado').length}</strong> bloqueado(s)</span></div>
-      {!filtered.length?<div className="empty-state">Nenhum aluno encontrado. Clique em “Novo aluno” para iniciar a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Categoria</th><th>Faixa</th><th>Professor</th><th>Início</th><th>Progresso</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(x=><tr key={x.id}><td><div className="student-cell">{x.profiles?.avatar_url?<img src={x.profiles.avatar_url} className="student-avatar" alt=""/>:<div className="student-avatar mini"><UserRound size={16}/></div>}<div><strong>{x.profiles?.name||'-'}</strong><div className="muted small-text">{x.cpf||`Login: ${x.profiles?.username||'-'}`}</div></div></div></td><td>{x.categories?.name||'-'}</td><td>{x.belts?.name||'-'} <span className="muted">• {x.degrees??0} grau(s)</span></td><td>{x.responsible?.name||'-'}</td><td>{formatDate(x.start_date)}</td><td>{progress[x.id]?<div className={`student-grade-progress ${progress[x.id].degreeEligible||progress[x.id].beltEligible?'ready':''}`}><strong>{progress[x.id].beltEligible?'Troca de faixa':progress[x.id].degreeEligible?'Grau disponível':`${progress[x.id].attendanceSinceGraduation}/70`}</strong><span>{progress[x.id].beltEligible?'4 graus concluídos':progress[x.id].degreeEligible?'70 aulas concluídas':`Faltam ${progress[x.id].classesToNextDegree}`}</span></div>:<span className="muted">-</span>}</td><td><span className={`status-badge status-${x.status}`}>{x.status||'-'}</span></td><td><div style={{display:'flex',gap:6}}><button className="icon-btn" onClick={()=>edit(x)} title="Editar aluno"><Pencil size={15}/></button>{isAdmin&&<><button className="icon-btn" onClick={()=>resetAccess(x)} title="Redefinir senha"><KeyRound size={15}/></button><button className="icon-btn danger" onClick={()=>removeStudent(x)} title="Excluir aluno"><Trash2 size={15}/></button></>}</div></td></tr>)}</tbody></table></div>}
+      {!filtered.length?<div className="empty-state">Nenhum aluno encontrado. Clique em “Novo aluno” para iniciar a base real.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Categoria</th><th>Faixa</th><th>Professor</th><th>Início</th><th>Progresso</th><th>Status</th><th>Ações</th></tr></thead><tbody>{filtered.map(x=><tr key={x.id}><td><div className="student-cell">{x.profiles?.avatar_url?<img src={x.profiles.avatar_url} className="student-avatar" alt=""/>:<div className="student-avatar mini"><UserRound size={16}/></div>}<div><strong>{x.profiles?.name||'-'}</strong><div className="muted small-text">{x.cpf||`Login: ${x.profiles?.username||'-'}`}</div></div></div></td><td>{x.categories?.name||'-'}</td><td>{x.belts?.name||'-'} <span className="muted">• {x.degrees??0} grau(s)</span></td><td><strong>{x.responsible?.name||'-'}</strong>{x.additional_professors?.length?<div className="muted small-text">+ {x.additional_professors.join(', ')}</div>:null}</td><td>{formatDate(x.start_date)}</td><td>{progress[x.id]?<div className={`student-grade-progress ${progress[x.id].degreeEligible||progress[x.id].beltEligible?'ready':''}`}><strong>{progress[x.id].isBlackBelt?'Faixa preta':progress[x.id].beltEligible?'Troca de faixa':progress[x.id].degreeEligible?'Grau disponível':`${progress[x.id].attendanceSinceGraduation}/70`}</strong><span>{progress[x.id].isBlackBelt?'Graduação externa':progress[x.id].beltEligible?'4 graus concluídos':progress[x.id].degreeEligible?'70 aulas concluídas':`Faltam ${progress[x.id].classesToNextDegree}`}</span></div>:<span className="muted">-</span>}</td><td><span className={`status-badge status-${x.status}`}>{x.status||'-'}</span></td><td><div style={{display:'flex',gap:6}}><button className="icon-btn" onClick={()=>edit(x)} title="Editar aluno"><Pencil size={15}/></button>{isAdmin&&<><button className="icon-btn" onClick={()=>resetAccess(x)} title="Redefinir senha"><KeyRound size={15}/></button><button className="icon-btn danger" onClick={()=>removeStudent(x)} title="Excluir aluno"><Trash2 size={15}/></button></>}</div></td></tr>)}</tbody></table></div>}
     </div>
   </AppShell>
 }

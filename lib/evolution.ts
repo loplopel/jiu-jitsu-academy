@@ -62,7 +62,7 @@ export function buildEvolution(student:StudentLike,attendance:AttendanceLike[],e
 
   return {
     score,status:ieaStatus(score),attendance30:count30,attendance60:count60,attendance90:count90,totalAttendance:mine.length,streakWeeks,trainingMonths,monthsInBelt,eventCount,competitionCount,graduationCount,lastTrainingAt:lastTraining?.toISOString()||null,daysAbsent,risk,
-    attendanceSinceGraduation,classesToNextDegree,degreeEligible,beltEligible,
+    attendanceSinceGraduation,classesToNextDegree,degreeEligible,beltEligible,isBlackBelt,
     components:{frequency,attendance:attendanceScore,streak:streakScore,trainingTime:trainingScore,events:eventScore,competitions:competitionScore,graduation:graduationProgress}
   };
 }

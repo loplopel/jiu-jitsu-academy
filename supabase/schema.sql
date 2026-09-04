@@ -17,6 +17,15 @@ create table public.plans(id uuid primary key default gen_random_uuid(),name tex
 create table public.students(
  id uuid primary key references public.profiles(id) on delete cascade,cpf text unique,birth_date date,sex text,weight numeric(6,2),height numeric(5,2),category_id uuid references public.categories(id),responsible_professor_id uuid references public.profiles(id),start_date date default current_date,belt_id uuid references public.belts(id),degrees int default 0 check(degrees between 0 and 4),last_graduation_date date,training_time_months int default 0,notes text,emergency_contact text,injuries text,plan_id uuid references public.plans(id),status public.student_status default 'ativo'
 );
+create table if not exists public.student_professors(
+ student_id uuid not null references public.students(id) on delete cascade,
+ professor_id uuid not null references public.profiles(id) on delete cascade,
+ created_at timestamptz not null default now(),
+ primary key(student_id,professor_id)
+);
+create index if not exists idx_student_professors_professor on public.student_professors(professor_id);
+create index if not exists idx_student_professors_student on public.student_professors(student_id);
+
 create table public.schedules(id uuid primary key default gen_random_uuid(),name text not null,weekday int not null check(weekday between 0 and 6),start_time time not null,end_time time not null,professor_id uuid references public.profiles(id),capacity int not null default 30,active boolean default true);
 create table public.classes(id uuid primary key default gen_random_uuid(),schedule_id uuid references public.schedules(id),title text not null,professor_id uuid not null references public.profiles(id),starts_at timestamptz not null,ends_at timestamptz not null,capacity int not null default 30,status public.class_status default 'open',notes text,created_at timestamptz default now());
 create table public.reservations(id uuid primary key default gen_random_uuid(),class_id uuid not null references public.classes(id) on delete cascade,student_id uuid not null references public.students(id) on delete cascade,status text not null default 'reserved',created_at timestamptz default now(),cancelled_at timestamptz,unique(class_id,student_id));
@@ -43,7 +52,22 @@ create policy "categories visible" on categories for select to authenticated usi
 create policy "plans visible" on plans for select to authenticated using(true);create policy "admin manages plans" on plans for all using(is_admin()) with check(is_admin());
 create policy "profiles self or staff" on profiles for select using(id=auth.uid() or is_professor());
 create policy "admin manages profiles" on profiles for all using(is_admin()) with check(is_admin());
-create policy "staff reads students" on students for select using(id=auth.uid() or is_professor());create policy "staff manages students" on students for all using(is_professor()) with check(is_professor());
+create policy "staff reads students" on students for select using(id=auth.uid() or is_professor());create policy "staff manages students" on students for all using(is_professor()) with check(is_professor());create or replace function public.validate_student_professor_link()
+returns trigger language plpgsql security definer set search_path=public as $$
+begin
+ if not exists(select 1 from public.profiles where id=new.professor_id and role='professor' and active) then
+   raise exception 'O vínculo exige um professor ativo.';
+ end if;
+ if exists(select 1 from public.students where id=new.student_id and responsible_professor_id=new.professor_id) then
+   raise exception 'O professor responsável já é o professor principal.';
+ end if;
+ return new;
+end; $$;
+drop trigger if exists trg_validate_student_professor_link on public.student_professors;
+create trigger trg_validate_student_professor_link before insert or update on public.student_professors for each row execute function public.validate_student_professor_link();
+create policy "student professors read own or staff" on student_professors for select using(student_id=auth.uid() or is_professor());
+create policy "staff manages student professors" on student_professors for all using(is_professor()) with check(is_professor());
+
 create policy "classes visible authenticated" on classes for select to authenticated using(true);create policy "staff manages classes" on classes for all using(is_professor()) with check(is_professor());
 create policy "reservations own read" on reservations for select using(student_id=auth.uid() or is_professor());create policy "students reserve own" on reservations for insert with check(student_id=auth.uid());create policy "students update own reservation" on reservations for update using(student_id=auth.uid() or is_professor());
 create policy "qr staff only" on qr_tokens for select using(is_professor());create policy "qr staff create" on qr_tokens for insert with check(is_professor());create policy "qr staff update" on qr_tokens for update using(is_professor());

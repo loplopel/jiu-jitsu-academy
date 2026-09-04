@@ -5,7 +5,7 @@ import {Award,RefreshCw,TrendingUp,AlertTriangle,Clock3,CalendarCheck,Medal,Chev
 
 type Belt={id:string;name:string;sort_order:number;minimum_months:number};
 type Grad={id:string;graduation_date:string;degrees:number;notes?:string;from?:{name?:string}|null;to?:{name?:string}|null;professor?:{name?:string}|null};
-type Evo={score:number;status:string;attendance30:number;attendance60:number;attendance90:number;totalAttendance:number;streakWeeks:number;trainingMonths:number;monthsInBelt:number;eventCount:number;competitionCount:number;graduationCount:number;daysAbsent:number|null;risk:string;attendanceSinceGraduation:number;classesToNextDegree:number;degreeEligible:boolean;beltEligible:boolean;components:Record<string,number>};
+type Evo={score:number;status:string;attendance30:number;attendance60:number;attendance90:number;totalAttendance:number;streakWeeks:number;trainingMonths:number;monthsInBelt:number;eventCount:number;competitionCount:number;graduationCount:number;daysAbsent:number|null;risk:string;attendanceSinceGraduation:number;classesToNextDegree:number;degreeEligible:boolean;beltEligible:boolean;isBlackBelt:boolean;components:Record<string,number>};
 type Student={id:string;degrees:number;profiles?:{name?:string;avatar_url?:string}|null;belts?:{id?:string;name?:string;minimum_months?:number;sort_order?:number}|null;evolution:Evo;graduations:Grad[]};
 
 function formatTrainingTime(months:number){
@@ -27,7 +27,7 @@ export default function Page(){
   async function recalc(id:string){setMsg('Atualizando IEA...');const r=await fetch('/api/evolution',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'recalculate',student_id:id})});const j=await r.json();setMsg(r.ok?'IEA atualizado com sucesso.':j.error||'Falha ao atualizar IEA.');if(r.ok)await load()}
 
   function openGraduation(s:Student){
-    if(data.role!=='professor')return;
+    if(data.role!=='professor'||s.evolution.isBlackBelt)return;
     const currentId=s.belts?.id||'';
     if(s.evolution.beltEligible){
       const currentOrder=Number(s.belts?.sort_order||0);
@@ -67,8 +67,9 @@ export default function Page(){
           <div><Medal size={16}/><span>Faixa atual</span><strong>{s.belts?.name||'Sem faixa'}</strong></div>
         </div>
 
-        {data.role==='professor'&&<div className={`graduation-rule ${s.evolution.beltEligible||s.evolution.degreeEligible?'ready':''}`}>
-          {s.evolution.beltEligible?<><CheckCircle2 size={18}/><div><strong>Apto à troca de faixa</strong><span>O aluno já recebeu os 4 graus desta faixa.</span></div></>:
+        {data.role==='professor'&&<div className={`graduation-rule ${s.evolution.isBlackBelt||s.evolution.beltEligible||s.evolution.degreeEligible?'ready':''}`}>
+          {s.evolution.isBlackBelt?<><Award size={18}/><div><strong>Faixa preta — graduação por Federação/professor</strong><span>A frequência continua sendo contabilizada. A regra de 70 aulas não se aplica à faixa preta.</span></div></>:
+           s.evolution.beltEligible?<><CheckCircle2 size={18}/><div><strong>Apto à troca de faixa</strong><span>O aluno já recebeu os 4 graus desta faixa.</span></div></>:
            s.evolution.degreeEligible?<><CheckCircle2 size={18}/><div><strong>{Math.min(4,(s.degrees||0)+1)}º grau disponível</strong><span>Completou 70 aulas desde a última graduação.</span></div></>:
            <><Award size={18}/><div><strong>Progresso para o próximo grau: {s.evolution.attendanceSinceGraduation}/70 aulas</strong><span>Faltam {s.evolution.classesToNextDegree} aula(s) para liberar o próximo grau.</span></div></>}
         </div>}
@@ -78,7 +79,7 @@ export default function Page(){
           {s.evolution.risk!=='normal'&&<span className="risk-note"><AlertTriangle size={15}/>{s.evolution.daysAbsent===null?'Sem presença registrada':`${s.evolution.daysAbsent} dias sem treinar`}</span>}
           {data.role==='professor'&&<div className="toolbar">
             <button className="btn btn-secondary" onClick={()=>recalc(s.id)}>Salvar IEA</button>
-            <button className="btn btn-primary" disabled={!s.evolution.degreeEligible&&!s.evolution.beltEligible} onClick={()=>openGraduation(s)}><Award size={15}/>{s.evolution.beltEligible?'Trocar faixa':s.evolution.degreeEligible?`Registrar ${Math.min(4,(s.degrees||0)+1)}º grau`:`Faltam ${s.evolution.classesToNextDegree} aulas`}</button>
+            {!s.evolution.isBlackBelt&&<button className="btn btn-primary" disabled={!s.evolution.degreeEligible&&!s.evolution.beltEligible} onClick={()=>openGraduation(s)}><Award size={15}/>{s.evolution.beltEligible?'Trocar faixa':s.evolution.degreeEligible?`Registrar ${Math.min(4,(s.degrees||0)+1)}º grau`:`Faltam ${s.evolution.classesToNextDegree} aulas`}</button>}
           </div>}
         </div>
 

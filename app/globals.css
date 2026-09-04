@@ -1,4 +1,4 @@
-:root{--bg:#090b10;--panel:#11151d;--panel2:#171c26;--line:#242c39;--text:#f5f7fb;--muted:#97a1b2;--gold:#f97316;--gold2:#fb923c;--danger:#ef6461;--ok:#42c783;--blue:#59a7ff;--shadow:0 22px 60px rgba(0,0,0,.28)}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 10% 0%,#171d29 0,#090b10 38%);color:var(--text);font-family:Arial,Helvetica,sans-serif}body{min-height:100vh}a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}.container{max-width:1400px;margin:0 auto;padding:28px}.card{background:linear-gradient(180deg,rgba(24,29,40,.96),rgba(15,18,25,.98));border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer}.btn-primary{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#15110a}.btn-secondary{background:#202734;color:#fff;border:1px solid #313a4a}.btn-danger{background:#4b2022;color:#ffd7d5;border:1px solid #753036}.input{width:100%;background:#0e1219;border:1px solid #2a3342;color:#fff;border-radius:11px;padding:12px 13px;outline:none}.input:focus{border-color:#ea580c;box-shadow:0 0 0 3px rgba(249,115,22,.14)}.label{display:block;font-size:12px;color:#aab3c1;margin-bottom:6px;font-weight:700}.muted{color:var(--muted)}.grid{display:grid;gap:18px}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{padding:18px}.stat strong{font-size:30px;display:block;margin-top:8px}.pill{font-size:12px;font-weight:700;border:1px solid #344050;border-radius:999px;padding:5px 8px;color:#c9d1de;display:inline-flex;align-items:center;gap:6px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}.table{width:100%;border-collapse:collapse;min-width:760px}.table th,.table td{padding:12px 14px;border-bottom:1px solid #212937;text-align:left}.table th{font-size:12px;color:#9ea8b8;background:#121721}.table tr:last-child td{border-bottom:0}.section-title{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:0 0 16px}.section-title h2{font-size:20px;margin:0}.auth-shell{min-height:100vh;display:grid;grid-template-columns:1.1fr .9fr}.auth-art{padding:60px;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(0deg,rgba(7,8,12,.84),rgba(7,8,12,.15)),url('/dojo.svg') center/cover no-repeat}.auth-art h1{font-size:54px;line-height:.98;margin:0 0 18px;max-width:680px}.auth-panel{display:flex;align-items:center;justify-content:center;padding:35px}.auth-box{width:min(440px,100%);padding:28px}.brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:.3px}.brand-mark{width:42px;height:42px;border:1px solid #7c2d12;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#2d160d,#121316);color:var(--gold2)}.form-stack{display:grid;gap:14px}.sidebar{width:260px;position:fixed;left:0;top:0;bottom:0;background:#0d1118;border-right:1px solid #202633;padding:18px;overflow:auto}.sidebar-nav{display:grid;gap:5px;margin-top:24px}.nav-item{padding:10px 12px;border-radius:10px;color:#acb5c4;display:flex;gap:10px;align-items:center;font-size:14px}.nav-item:hover,.nav-item.active{background:#1a202b;color:#fff}.app-main{margin-left:260px;min-height:100vh}.topbar{height:70px;border-bottom:1px solid #202633;display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;background:rgba(9,11,16,.82);backdrop-filter:blur(14px);z-index:10}.content{padding:25px}.hero{padding:24px;background:linear-gradient(110deg,#1b202c,#10141c 58%,#201a0f);border:1px solid #2c3340;border-radius:18px;margin-bottom:20px}.hero h1{margin:0 0 7px;font-size:30px}.progress{height:8px;background:#262d39;border-radius:99px;overflow:hidden}.progress>span{display:block;height:100%;background:linear-gradient(90deg,#ea580c,#fb923c)}.empty{padding:36px;text-align:center;color:#96a0b0}.split{display:flex;align-items:center;justify-content:space-between;gap:12px}.toolbar{display:flex;gap:10px;flex-wrap:wrap}.mobile-menu{display:none}.notice{padding:10px 12px;border-radius:10px;font-size:13px}.notice.error{background:#401e21;color:#ffd5d2;border:1px solid #6d2b31}.notice.success{background:#173729;color:#c8f7dc;border:1px solid #285c43}@media(max-width:1050px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:1fr 1fr}}@media(max-width:800px){.auth-shell{grid-template-columns:1fr}.auth-art{display:none}.sidebar{display:none}.app-main{margin-left:0}.mobile-menu{display:inline-flex}.content{padding:16px}.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}.topbar{padding:0 16px}.hero h1{font-size:24px}}
+:root{--bg:#090b10;--panel:#11151d;--panel2:#171c26;--line:#242c39;--border:#242c39;--text:#f5f7fb;--muted:#97a1b2;--gold:#f97316;--gold2:#fb923c;--accent:#fb923c;--primary:#f97316;--danger:#ef6461;--ok:#42c783;--blue:#59a7ff;--card:#11151d;--surface-2:#171c26;--panel-2:#171c26;--shadow:0 22px 60px rgba(0,0,0,.28)}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 10% 0%,#171d29 0,#090b10 38%);color:var(--text);font-family:Arial,Helvetica,sans-serif}body{min-height:100vh}a{color:inherit;text-decoration:none}button,input,select,textarea{font:inherit}.container{max-width:1400px;margin:0 auto;padding:28px}.card{background:linear-gradient(180deg,rgba(24,29,40,.96),rgba(15,18,25,.98));border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.btn{border:0;border-radius:12px;padding:11px 16px;font-weight:700;cursor:pointer}.btn-primary{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#15110a}.btn-secondary{background:#202734;color:#fff;border:1px solid #313a4a}.btn-danger{background:#4b2022;color:#ffd7d5;border:1px solid #753036}.input{width:100%;background:#0e1219;border:1px solid #2a3342;color:#fff;border-radius:11px;padding:12px 13px;outline:none}.input:focus{border-color:#ea580c;box-shadow:0 0 0 3px rgba(249,115,22,.14)}.label{display:block;font-size:12px;color:#aab3c1;margin-bottom:6px;font-weight:700}.muted{color:var(--muted)}.grid{display:grid;gap:18px}.grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.stat{padding:18px}.stat strong{font-size:30px;display:block;margin-top:8px}.pill{font-size:12px;font-weight:700;border:1px solid #344050;border-radius:999px;padding:5px 8px;color:#c9d1de;display:inline-flex;align-items:center;gap:6px}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}.table{width:100%;border-collapse:collapse;min-width:760px}.table th,.table td{padding:12px 14px;border-bottom:1px solid #212937;text-align:left}.table th{font-size:12px;color:#9ea8b8;background:#121721}.table tr:last-child td{border-bottom:0}.section-title{display:flex;align-items:center;justify-content:space-between;gap:15px;margin:0 0 16px}.section-title h2{font-size:20px;margin:0}.auth-shell{min-height:100vh;display:grid;grid-template-columns:1.1fr .9fr}.auth-art{padding:60px;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(0deg,rgba(7,8,12,.84),rgba(7,8,12,.15)),url('/dojo.svg') center/cover no-repeat}.auth-art h1{font-size:54px;line-height:.98;margin:0 0 18px;max-width:680px}.auth-panel{display:flex;align-items:center;justify-content:center;padding:35px}.auth-box{width:min(440px,100%);padding:28px}.brand{display:flex;align-items:center;gap:12px;font-weight:900;letter-spacing:.3px}.brand-mark{width:42px;height:42px;border:1px solid #7c2d12;border-radius:13px;display:grid;place-items:center;background:linear-gradient(135deg,#2d160d,#121316);color:var(--gold2)}.form-stack{display:grid;gap:14px}.sidebar{width:260px;position:fixed;left:0;top:0;bottom:0;background:#0d1118;border-right:1px solid #202633;padding:18px;overflow:auto}.sidebar-nav{display:grid;gap:5px;margin-top:24px}.nav-item{padding:10px 12px;border-radius:10px;color:#acb5c4;display:flex;gap:10px;align-items:center;font-size:14px}.nav-item:hover,.nav-item.active{background:#1a202b;color:#fff}.app-main{margin-left:260px;min-height:100vh}.topbar{height:70px;border-bottom:1px solid #202633;display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;background:rgba(9,11,16,.82);backdrop-filter:blur(14px);z-index:10}.content{padding:25px}.hero{padding:24px;background:linear-gradient(110deg,#1b202c,#10141c 58%,#201a0f);border:1px solid #2c3340;border-radius:18px;margin-bottom:20px}.hero h1{margin:0 0 7px;font-size:30px}.progress{height:8px;background:#262d39;border-radius:99px;overflow:hidden}.progress>span{display:block;height:100%;background:linear-gradient(90deg,#ea580c,#fb923c)}.empty{padding:36px;text-align:center;color:#96a0b0}.split{display:flex;align-items:center;justify-content:space-between;gap:12px}.toolbar{display:flex;gap:10px;flex-wrap:wrap}.mobile-menu{display:none}.notice{padding:10px 12px;border-radius:10px;font-size:13px}.notice.error{background:#401e21;color:#ffd5d2;border:1px solid #6d2b31}.notice.success{background:#173729;color:#c8f7dc;border:1px solid #285c43}@media(max-width:1050px){.grid-4{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:1fr 1fr}}@media(max-width:800px){.auth-shell{grid-template-columns:1fr}.auth-art{display:none}.sidebar{display:none}.app-main{margin-left:0}.mobile-menu{display:inline-flex}.content{padding:16px}.grid-4,.grid-3,.grid-2{grid-template-columns:1fr}.topbar{padding:0 16px}.hero h1{font-size:24px}}
 
 .logo-brand{width:46px;height:46px;object-fit:contain;flex:none}.logo-login{width:72px;height:72px;object-fit:contain}.logo-large{width:150px;height:150px;object-fit:contain}.empty-state{padding:34px;text-align:center;border:1px dashed #343d4c;border-radius:14px;color:var(--muted)}.install-banner{position:fixed;z-index:100;left:50%;bottom:18px;transform:translateX(-50%);width:min(680px,calc(100% - 28px));background:#151a22;border:1px solid #343c49;border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:14px;box-shadow:0 18px 60px rgba(0,0,0,.45)}.install-banner strong,.install-banner span{display:block}.install-banner span{font-size:12px;color:var(--muted);margin-top:4px}@media(max-width:600px){.install-banner{align-items:flex-start;flex-direction:column}.install-banner .toolbar{width:100%}.install-banner .btn-primary{flex:1}}
 
@@ -66,3 +66,1232 @@
 @media(max-width:560px){.graduation-progress-head{align-items:flex-start;flex-direction:column}.graduation-circle{width:82px;height:82px}.student-month-grid{grid-template-columns:repeat(4,1fr)}.graduation-progress-foot{display:grid;gap:8px}.attendance-history-card{padding:17px}.student-stats-v2{grid-template-columns:repeat(2,1fr)!important}}
 .student-class-tabs{gap:8px;flex-wrap:wrap}.student-class-tabs .btn{min-width:92px;justify-content:center}
 @media(max-width:620px){.student-class-tabs{display:grid;grid-template-columns:repeat(2,1fr)}.student-class-tabs .btn{width:100%;min-width:0}.student-class-tabs .btn:last-child{grid-column:1/-1}}
+
+
+
+/* =========================================================
+   v2.0.11 — CORREÇÃO VISUAL / MOBILE
+   - evita estouro horizontal
+   - padroniza botões e ícones
+   - corrige variáveis antigas
+   - deixa a frequência mensal realmente responsiva
+   - não altera a lógica/estrutura do React
+   ========================================================= */
+
+html {
+  overflow-x: hidden;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+.app-main,
+.content,
+.container,
+.card {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.content {
+  overflow-x: hidden;
+}
+
+/* Botões: ícone + texto alinhados corretamente */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  line-height: 1.2;
+  white-space: normal;
+  text-align: center;
+  min-height: 42px;
+  box-sizing: border-box;
+}
+
+.btn svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+  min-width: 0;
+}
+
+.toolbar {
+  min-width: 0;
+}
+
+.toolbar > * {
+  min-width: 0;
+}
+
+/* Links que funcionam visualmente como botão */
+a.btn {
+  text-decoration: none;
+}
+
+/* Cards e grids nunca devem criar largura maior que a tela */
+.grid,
+.student-stats,
+.student-shortcuts,
+.quick-actions,
+.professor-actions,
+.attendance-summary,
+.evolution-grid {
+  min-width: 0;
+}
+
+.grid > *,
+.student-stats > *,
+.student-shortcuts > *,
+.quick-actions > *,
+.professor-actions > *,
+.attendance-summary > *,
+.evolution-grid > * {
+  min-width: 0;
+}
+
+/* Frequência mensal */
+.student-month-grid {
+  width: 100%;
+  min-width: 0;
+}
+
+.student-month-grid > div {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.student-month-grid span,
+.student-month-grid strong {
+  min-width: 0;
+}
+
+/* Histórico de treinos */
+.recent-training-list {
+  min-width: 0;
+}
+
+.recent-training-list > div {
+  min-width: 0;
+}
+
+.recent-training-list > div > div {
+  min-width: 0;
+}
+
+.recent-training-list strong,
+.recent-training-list span {
+  overflow-wrap: anywhere;
+}
+
+/* Área de próxima aula */
+.student-next-class,
+.next-class-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.next-class-meta {
+  min-width: 0;
+}
+
+.next-class-meta span {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Títulos longos não podem empurrar a tela */
+.student-welcome h1,
+.welcome-hero h1,
+.graduation-progress-head h2,
+.student-next-class h2,
+.next-class-card h2,
+.section-title h2 {
+  overflow-wrap: anywhere;
+}
+
+/* Mobile: nada pode escapar da viewport */
+@media (max-width: 800px) {
+  .content {
+    width: 100%;
+    max-width: 100vw;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .student-welcome,
+  .student-welcome-v2,
+  .welcome-hero {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .section-title {
+    align-items: flex-start;
+  }
+
+  .section-title .btn {
+    flex: 0 0 auto;
+  }
+
+  .student-month-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .student-month-grid > div {
+    padding: 9px 4px;
+    border-radius: 10px;
+  }
+
+  .student-month-grid strong {
+    font-size: 18px;
+  }
+
+  .student-month-grid span {
+    font-size: 10px;
+  }
+
+  .student-next-class .toolbar,
+  .next-class-card .toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .student-next-class .toolbar .btn,
+  .next-class-card .toolbar .btn {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .graduation-progress-card {
+    overflow: hidden;
+  }
+
+  .graduation-progress-head {
+    min-width: 0;
+  }
+
+  .graduation-progress-head > div:first-child {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .graduation-progress-head p {
+    overflow-wrap: anywhere;
+  }
+
+  .graduation-progress-foot {
+    min-width: 0;
+  }
+
+  .graduation-progress-foot span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .student-shortcuts-v2 {
+    min-width: 0;
+  }
+
+  .student-shortcut {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .student-shortcut span,
+  .student-shortcut small {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* Celulares menores */
+@media (max-width: 480px) {
+  .content {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .student-month-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .student-stats-v2 {
+    gap: 8px;
+  }
+
+  .student-stats-v2 .stat {
+    padding: 14px;
+  }
+
+  .student-stats-v2 .stat strong {
+    font-size: 25px;
+  }
+
+  .attendance-history-card {
+    padding: 14px;
+  }
+
+  .section-title {
+    gap: 10px;
+  }
+
+  .section-title > div {
+    min-width: 0;
+  }
+
+  .section-title .btn {
+    width: 100%;
+  }
+
+  .student-next-class,
+  .next-class-card {
+    padding: 16px;
+  }
+}
+
+/* Área de calendário diário/mensal, caso usada pelo painel */
+.attendance-calendar {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.attendance-calendar-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.attendance-calendar-day {
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(255,255,255,.025);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.attendance-calendar-day.checked,
+.attendance-calendar-day.has-training,
+.attendance-day.checked,
+.attendance-day.has-training {
+  background: rgba(249,115,22,.13);
+  border-color: rgba(249,115,22,.42);
+  color: #fff;
+}
+
+.attendance-calendar-day.checked::after,
+.attendance-calendar-day.has-training::after,
+.attendance-day.checked::after,
+.attendance-day.has-training::after {
+  content: "✓";
+  font-size: 12px;
+  margin-left: 4px;
+  color: #fb923c;
+}
+
+.attendance-calendar-day.empty,
+.attendance-day.empty {
+  visibility: hidden;
+  border-color: transparent;
+  background: transparent;
+}
+
+@media (max-width: 480px) {
+  .attendance-calendar-grid {
+    gap: 4px;
+  }
+
+  .attendance-calendar-day {
+    border-radius: 8px;
+    font-size: 11px;
+  }
+}
+
+/* Segurança para imagens e mídia */
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+input,
+select,
+textarea {
+  max-width: 100%;
+}
+
+/* Não permitir que tabelas causem overflow no card inteiro */
+.table-wrap {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* =========================================================
+   v2.0.11 — FREQUÊNCIA SEM LOGO
+   Marca apenas o dia em que houve presença
+   ========================================================= */
+
+.attendance-calendar-marker{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  display:block;
+  flex:0 0 9px;
+  background:#f97316;
+  box-shadow:0 0 0 4px rgba(249,115,22,.10);
+  margin-top:8px;
+}
+
+.attendance-calendar-day.trained{
+  border-color:rgba(249,115,22,.45);
+  background:rgba(249,115,22,.08);
+}
+
+.attendance-calendar-day.trained
+.attendance-calendar-number{
+  color:#f8fafc;
+  font-weight:700;
+}
+
+.attendance-calendar-legend{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:16px;
+  padding-top:14px;
+  border-top:1px solid rgba(148,163,184,.15);
+  font-size:12px;
+}
+
+.attendance-calendar-legend > span:first-child{
+  display:flex;
+  align-items:center;
+  gap:9px;
+}
+
+.attendance-calendar-legend-marker{
+  width:24px;
+  height:24px;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(249,115,22,.08);
+  border:1px solid rgba(249,115,22,.22);
+}
+
+.attendance-calendar-legend-marker
+.attendance-calendar-marker{
+  width:7px;
+  height:7px;
+  flex-basis:7px;
+  margin-top:0;
+  box-shadow:none;
+}
+
+@media(max-width:600px){
+
+  .attendance-calendar-marker{
+    width:8px;
+    height:8px;
+    flex-basis:8px;
+    margin-top:7px;
+  }
+
+  .attendance-calendar-legend{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+}
+
+/* =========================================================
+   v2.0.12 — FREQUÊNCIA MENSAL
+   Visual original em cards — compatível com <div>
+   Não usa logo e não altera a lógica do React
+   ========================================================= */
+
+.student-month-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  width:100%;
+  min-width:0;
+  margin-top:20px;
+}
+
+.student-month-grid > div{
+  min-width:0;
+  min-height:92px;
+  padding:14px 10px;
+  border-radius:14px;
+  border:1px solid rgba(148,163,184,.08);
+  background:rgba(15,23,42,.42);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  text-align:center;
+  box-sizing:border-box;
+  overflow:hidden;
+  transition:
+    transform .18s ease,
+    border-color .18s ease,
+    background .18s ease;
+}
+
+.student-month-grid > div:hover{
+  transform:translateY(-1px);
+  border-color:rgba(249,115,22,.35);
+  background:rgba(249,115,22,.06);
+}
+
+.student-month-grid > div span{
+  display:block;
+  min-width:0;
+  font-size:13px;
+  line-height:1.2;
+  color:#94a3b8;
+  font-weight:500;
+}
+
+.student-month-grid > div strong{
+  display:block;
+  min-width:0;
+  font-size:24px;
+  line-height:1;
+  color:#f8fafc;
+  font-weight:700;
+}
+
+/* Mês com treino */
+.student-month-grid > div.has-training{
+  border-color:rgba(249,115,22,.30);
+  background:rgba(249,115,22,.075);
+}
+
+.student-month-grid > div.has-training span{
+  color:#cbd5e1;
+}
+
+.student-month-grid > div.has-training strong{
+  color:#f8fafc;
+}
+
+/* =========================================================
+   v2.0.12 — BOTÕES
+   Mantém o visual premium sem deixar os botões estourarem
+   ========================================================= */
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  line-height:1.2;
+  white-space:normal;
+  text-align:center;
+  min-height:42px;
+  max-width:100%;
+  box-sizing:border-box;
+}
+
+.btn svg{
+  width:16px;
+  height:16px;
+  flex:0 0 auto;
+}
+
+.toolbar{
+  min-width:0;
+  max-width:100%;
+}
+
+.toolbar > *{
+  min-width:0;
+  max-width:100%;
+}
+
+/* =========================================================
+   v2.0.12 — MOBILE
+   ========================================================= */
+
+@media(max-width:600px){
+
+  .student-month-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+  }
+
+  .student-month-grid > div{
+    min-height:88px;
+    padding:12px 8px;
+    border-radius:13px;
+  }
+
+  .student-month-grid > div span{
+    font-size:12px;
+  }
+
+  .student-month-grid > div strong{
+    font-size:22px;
+  }
+
+}
+
+/* Celulares muito pequenos */
+@media(max-width:380px){
+
+  .student-month-grid{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:8px;
+  }
+
+  .student-month-grid > div{
+    min-height:78px;
+    padding:10px 5px;
+  }
+
+  .student-month-grid > div span{
+    font-size:11px;
+  }
+
+  .student-month-grid > div strong{
+    font-size:20px;
+  }
+
+}
+
+/* =========================================================
+   v2.0.13 — VISUAL FINAL DO PAINEL DO ALUNO
+   Referência: cards premium + calendário de frequência
+   ========================================================= */
+
+.student-welcome-v2{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+}
+
+.student-belt-summary{
+  min-width:220px;
+  padding:16px 18px;
+  border:1px solid rgba(249,115,22,.3);
+  background:rgba(249,115,22,.08);
+  border-radius:16px;
+  display:grid;
+  gap:4px;
+}
+
+.student-belt-summary span,
+.student-belt-summary small{
+  color:var(--muted);
+  font-size:12px;
+}
+
+.student-belt-summary strong{
+  font-size:26px;
+}
+
+.student-next-class-v2{
+  margin-bottom:18px;
+}
+
+.graduation-progress-card{
+  padding:22px;
+  margin:18px 0;
+  border-color:#334155;
+  background:linear-gradient(135deg,#111827,#121721);
+}
+
+.graduation-progress-card.ready{
+  border-color:#2f855a;
+  background:linear-gradient(135deg,#10251b,#121721);
+}
+
+.graduation-progress-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+}
+
+.graduation-progress-head h2{
+  margin:5px 0 6px;
+  font-size:25px;
+}
+
+.graduation-progress-head p{
+  margin:0;
+  color:var(--muted);
+  max-width:700px;
+}
+
+.graduation-circle{
+  width:96px;
+  height:96px;
+  flex:none;
+  border-radius:50%;
+  border:7px solid rgba(249,115,22,.25);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:#101620;
+}
+
+.graduation-progress-card.ready .graduation-circle{
+  border-color:rgba(66,199,131,.35);
+}
+
+.graduation-circle strong{
+  font-size:23px;
+}
+
+.graduation-circle span{
+  font-size:10px;
+  color:var(--muted);
+}
+
+.graduation-progress-track{
+  height:11px;
+  margin:18px 0 13px;
+}
+
+.graduation-progress-card.ready .graduation-progress-track span{
+  background:#42c783;
+}
+
+.graduation-progress-foot{
+  display:flex;
+  gap:18px;
+  flex-wrap:wrap;
+  color:#cbd5e1;
+  font-size:12px;
+}
+
+.graduation-progress-foot span{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.student-stats-v2{
+  margin-top:0;
+}
+
+.attendance-history-card{
+  padding:22px;
+  margin-top:18px;
+}
+
+/* Meses: exatamente em cards, não aparência de botão */
+.student-month-grid{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  width:100%;
+  margin-top:20px;
+}
+
+.student-month-button{
+  appearance:none;
+  -webkit-appearance:none;
+  width:100%;
+  min-width:0;
+  min-height:92px;
+  padding:14px 10px;
+  border:1px solid rgba(148,163,184,.08);
+  border-radius:14px;
+  background:linear-gradient(145deg,rgba(31,41,55,.78),rgba(17,24,39,.82));
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  text-align:center;
+  cursor:pointer;
+  box-sizing:border-box;
+  transition:transform .18s ease,border-color .18s ease,background .18s ease;
+}
+
+.student-month-button:hover{
+  transform:translateY(-1px);
+  border-color:rgba(249,115,22,.42);
+}
+
+.student-month-button span{
+  font-size:13px;
+  line-height:1.1;
+  color:#cbd5e1;
+  font-weight:600;
+}
+
+.student-month-button strong{
+  font-size:25px;
+  line-height:1;
+  color:#f8fafc;
+  font-weight:800;
+}
+
+.student-month-button.has-training{
+  border-color:rgba(249,115,22,.65);
+  background:linear-gradient(145deg,rgba(72,40,18,.88),rgba(38,25,15,.88));
+  box-shadow:inset 0 0 0 1px rgba(249,115,22,.08);
+}
+
+.student-month-button.has-training strong{
+  color:#fb923c;
+}
+
+/* Histórico */
+.recent-training-list{
+  margin-top:20px;
+  border-top:1px solid var(--border);
+  padding-top:16px;
+  display:grid;
+  gap:9px;
+}
+
+.recent-training-list h3{
+  margin:0 0 3px;
+}
+
+.recent-training-list>div{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:9px 0;
+  border-top:1px solid rgba(255,255,255,.05);
+}
+
+.recent-training-list>div:first-of-type{
+  border-top:0;
+}
+
+.recent-training-list svg{
+  color:var(--accent);
+  flex:none;
+}
+
+.recent-training-list>div>div{
+  min-width:0;
+  display:grid;
+  gap:2px;
+}
+
+.recent-training-list strong{
+  overflow-wrap:anywhere;
+}
+
+.recent-training-list span{
+  color:var(--muted);
+  font-size:12px;
+}
+
+/* =========================================================
+   v2.0.13 — CALENDÁRIO DE FREQUÊNCIA
+   ========================================================= */
+
+.attendance-calendar-overlay{
+  position:fixed;
+  inset:0;
+  z-index:150;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  background:rgba(2,6,12,.78);
+  backdrop-filter:blur(8px);
+}
+
+.attendance-calendar-modal{
+  width:min(600px,100%);
+  max-height:calc(100vh - 40px);
+  overflow:auto;
+  padding:30px;
+  border:1px solid #273345;
+  border-radius:24px;
+  background:
+    radial-gradient(circle at 90% 0%,rgba(249,115,22,.07),transparent 32%),
+    linear-gradient(180deg,#121923,#0d131b);
+  box-shadow:0 30px 100px rgba(0,0,0,.55);
+}
+
+.attendance-calendar-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:20px;
+}
+
+.attendance-calendar-header h2{
+  margin:7px 0 5px;
+  font-size:30px;
+}
+
+.attendance-calendar-header p{
+  margin:0;
+  font-size:16px;
+}
+
+.attendance-calendar-close,
+.attendance-calendar-nav{
+  appearance:none;
+  border:1px solid #2b3747;
+  background:#18212c;
+  color:#f8fafc;
+  border-radius:14px;
+  display:grid;
+  place-items:center;
+  cursor:pointer;
+}
+
+.attendance-calendar-close{
+  width:48px;
+  height:48px;
+  flex:none;
+}
+
+.attendance-calendar-nav{
+  width:46px;
+  height:46px;
+}
+
+.attendance-calendar-close:hover,
+.attendance-calendar-nav:hover:not(:disabled){
+  border-color:rgba(249,115,22,.55);
+  background:#202a36;
+}
+
+.attendance-calendar-nav:disabled{
+  opacity:.35;
+  cursor:not-allowed;
+}
+
+.attendance-calendar-navigation{
+  display:grid;
+  grid-template-columns:46px 1fr 46px;
+  align-items:center;
+  gap:12px;
+  margin:28px 0 22px;
+}
+
+.attendance-calendar-navigation strong{
+  text-align:center;
+  font-size:20px;
+}
+
+.attendance-calendar-weekdays,
+.attendance-calendar-grid{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:8px;
+}
+
+.attendance-calendar-weekdays{
+  margin-bottom:8px;
+}
+
+.attendance-calendar-weekdays span{
+  text-align:center;
+  font-size:12px;
+  color:#b8c3d3;
+  font-weight:700;
+}
+
+.attendance-calendar-day{
+  min-height:60px;
+  border:1px solid rgba(148,163,184,.11);
+  border-radius:13px;
+  background:rgba(23,32,43,.78);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  color:#f8fafc;
+  box-sizing:border-box;
+}
+
+.attendance-calendar-day.outside{
+  color:#4d5a6c;
+  background:rgba(15,22,31,.55);
+}
+
+.attendance-calendar-day.trained{
+  border-color:#f97316;
+  background:linear-gradient(145deg,rgba(76,43,18,.92),rgba(32,26,19,.92));
+  box-shadow:inset 0 0 0 1px rgba(249,115,22,.1);
+}
+
+.attendance-calendar-number{
+  font-size:16px;
+  font-weight:600;
+  line-height:1;
+}
+
+.attendance-calendar-day.trained .attendance-calendar-number{
+  font-weight:800;
+}
+
+.attendance-calendar-marker{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  display:block;
+  background:#fb923c;
+  box-shadow:0 0 0 3px rgba(249,115,22,.12);
+}
+
+.attendance-calendar-legend{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:24px;
+  padding-top:18px;
+  border-top:1px solid rgba(148,163,184,.13);
+  font-size:13px;
+}
+
+.attendance-calendar-legend>span:first-child{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.attendance-calendar-legend-marker{
+  width:28px;
+  height:28px;
+  border-radius:9px;
+  display:grid;
+  place-items:center;
+  background:rgba(249,115,22,.08);
+  border:1px solid rgba(249,115,22,.22);
+}
+
+.attendance-calendar-legend-marker .attendance-calendar-marker{
+  width:7px;
+  height:7px;
+  box-shadow:none;
+}
+
+/* Professores adicionais no cadastro */
+.additional-professors-field{
+  min-width:0;
+}
+
+.additional-professors-list{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  max-height:150px;
+  overflow:auto;
+  padding:8px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#0d131d;
+}
+
+.additional-professor-option{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:9px 10px;
+  border:1px solid transparent;
+  border-radius:10px;
+  color:#cbd5e1;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.additional-professor-option:hover{
+  background:rgba(255,255,255,.035);
+}
+
+.additional-professor-option.checked{
+  border-color:rgba(249,115,22,.3);
+  background:rgba(249,115,22,.08);
+  color:#fff;
+}
+
+.additional-professor-option input{
+  accent-color:#f97316;
+  flex:none;
+}
+
+/* =========================================================
+   v2.0.13 — FAIXA PRETA
+   ========================================================= */
+
+.graduation-rule.ready{
+  border-color:rgba(66,199,131,.45);
+}
+
+@media(max-width:900px){
+  .student-welcome-v2{
+    align-items:stretch;
+    flex-direction:column;
+  }
+
+  .student-belt-summary{
+    min-width:0;
+  }
+
+  .student-month-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+}
+
+@media(max-width:600px){
+  .attendance-history-card{
+    padding:18px;
+  }
+
+  .student-month-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:9px;
+  }
+
+  .student-month-button{
+    min-height:82px;
+    padding:11px 6px;
+    border-radius:12px;
+  }
+
+  .student-month-button span{
+    font-size:12px;
+  }
+
+  .student-month-button strong{
+    font-size:22px;
+  }
+
+  .attendance-calendar-overlay{
+    padding:10px;
+  }
+
+  .attendance-calendar-modal{
+    max-height:calc(100vh - 20px);
+    padding:20px 15px;
+    border-radius:20px;
+  }
+
+  .attendance-calendar-header h2{
+    font-size:24px;
+  }
+
+  .attendance-calendar-navigation{
+    margin:22px 0 18px;
+  }
+
+  .attendance-calendar-weekdays,
+  .attendance-calendar-grid{
+    gap:5px;
+  }
+
+  .attendance-calendar-day{
+    min-height:48px;
+    border-radius:9px;
+  }
+
+  .attendance-calendar-number{
+    font-size:14px;
+  }
+
+  .attendance-calendar-marker{
+    width:7px;
+    height:7px;
+  }
+
+  .attendance-calendar-legend{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .additional-professors-list{
+    grid-template-columns:1fr;
+  }
+
+  .graduation-progress-head{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .graduation-circle{
+    width:82px;
+    height:82px;
+  }
+
+  .graduation-progress-foot{
+    display:grid;
+    gap:8px;
+  }
+
+  .student-stats-v2{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+
+  .student-class-tabs{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .student-class-tabs .btn{
+    width:100%;
+    min-width:0;
+  }
+
+  .student-class-tabs .btn:last-child{
+    grid-column:1/-1;
+  }
+}
+
+@media(max-width:380px){
+  .student-month-grid{
+    gap:7px;
+  }
+
+  .student-month-button{
+    min-height:76px;
+    padding:9px 4px;
+  }
+
+  .student-month-button span{
+    font-size:11px;
+  }
+
+  .student-month-button strong{
+    font-size:20px;
+  }
+}

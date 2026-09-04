@@ -7,8 +7,13 @@ export async function POST(req:Request){
   const {data:student}=await admin.from('students').select('id,status').eq('id',user.id).maybeSingle();if(!student||student.status!=='ativo')return NextResponse.json({error:'Seu cadastro de aluno não está ativo.'},{status:403});
   const parsed=schema.safeParse(await req.json());if(!parsed.success)return NextResponse.json({error:'Dados inválidos'},{status:400});const {token,lat,lng}=parsed.data;
   const {data:qr}=await admin.from('qr_tokens').select('*').eq('token_hash',hashQrToken(token)).maybeSingle();if(!qr||qr.used_at||isExpired(qr.expires_at))return NextResponse.json({error:'QR Code expirado ou já utilizado.'},{status:409});
-  const {data:cls}=await admin.from('classes').select('id,status,starts_at,ends_at,capacity').eq('id',qr.class_id).single();
+  const {data:cls}=await admin.from('classes').select('id,status,starts_at,ends_at,capacity,professor_id').eq('id',qr.class_id).single();
   if(!cls||cls.status!=='open')return NextResponse.json({error:'A aula não está aberta para check-in.'},{status:409});
+  const {data:primary}=await admin.from('students').select('responsible_professor_id').eq('id',user.id).single();
+  const {data:secondary}=await admin.from('student_professors').select('professor_id').eq('student_id',user.id).eq('professor_id',cls.professor_id).maybeSingle();
+  if(primary?.responsible_professor_id!==cls.professor_id&&!secondary){
+    return NextResponse.json({error:'Esta aula não está disponível para o seu vínculo de professor.'},{status:403});
+  }
   const now=Date.now();if(now<new Date(cls.starts_at).getTime()||now>new Date(cls.ends_at).getTime())return NextResponse.json({error:'O check-in só é permitido durante o horário da aula.'},{status:409});
   const {data:existing}=await admin.from('attendance').select('id').eq('class_id',qr.class_id).eq('student_id',user.id).maybeSingle();if(existing)return NextResponse.json({error:'Presença já registrada nesta aula.'},{status:409});
   const {data:reservation}=await admin.from('reservations').select('id,status').eq('class_id',qr.class_id).eq('student_id',user.id).maybeSingle();

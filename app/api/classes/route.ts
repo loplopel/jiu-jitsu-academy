@@ -24,13 +24,30 @@ async function auth(){
 
 export async function GET(){
   const g=await auth(); if('error'in g)return g.error;
+  const {data:links}=g.profile.role==='aluno'
+    ? await g.admin.from('student_professors').select('professor_id').eq('student_id',g.user.id)
+    : {data:[] as any[]};
+
+  const {data:studentLink}=g.profile.role==='aluno'
+    ? await g.admin.from('students').select('responsible_professor_id').eq('id',g.user.id).single()
+    : {data:null as any};
+
+  const allowedProfessorIds=g.profile.role==='aluno'
+    ? Array.from(new Set([
+        studentLink?.responsible_professor_id,
+        ...(links||[]).map((row:any)=>row.professor_id)
+      ].filter(Boolean)))
+    : null;
+
   const {data,error}=await g.admin.from('classes').select(`
     id,title,starts_at,ends_at,capacity,status,notes,professor_id,
     profiles!classes_professor_id_fkey(name),
     reservations(id,student_id,status)
   `).order('starts_at',{ascending:true});
   if(error)return NextResponse.json({error:error.message},{status:500});
-  const rows=(data||[]).map((c:any)=>{
+  const rows=(data||[])
+    .filter((c:any)=>g.profile.role!=='aluno'||allowedProfessorIds!.includes(c.professor_id))
+    .map((c:any)=>{
     const reservations=(c.reservations||[]).filter((r:any)=>r.status==='reserved');
     const mine=(c.reservations||[]).find((r:any)=>r.student_id===g.user.id);
     return {

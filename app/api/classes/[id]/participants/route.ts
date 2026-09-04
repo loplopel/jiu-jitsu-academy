@@ -26,7 +26,22 @@ export async function GET(req:Request,{params}:{params:Promise<{id:string}>}){
       profiles!students_id_fkey(name,username,avatar_url),
       belts(name)
     `).eq('status','ativo').order('id');
-    if(g.profile.role==='professor')query=query.eq('responsible_professor_id',g.user.id);
+    if(g.profile.role==='professor'){
+      const {data:secondaryLinks}=await g.admin.from('student_professors').select('student_id').eq('professor_id',g.user.id);
+      const secondaryIds=new Set((secondaryLinks||[]).map((row:any)=>row.student_id));
+      const {data:primaryStudents}=await g.admin.from('students').select('id').eq('responsible_professor_id',g.user.id).eq('status','ativo');
+      const allowedIds=Array.from(new Set([
+        ...(primaryStudents||[]).map((row:any)=>row.id),
+        ...Array.from(secondaryIds)
+      ]));
+      const filtered=await query;
+      if(filtered.error)return NextResponse.json({error:filtered.error.message},{status:500});
+      const rows=(filtered.data||[]).filter((s:any)=>allowedIds.includes(s.id)&&!reservedIds.includes(s.id));
+      return NextResponse.json(rows.map((s:any)=>({
+        id:s.id,name:s.profiles?.name||'Aluno',login:s.profiles?.username||'',
+        avatar_url:s.profiles?.avatar_url||null,belt:s.belts?.name||'-',
+      })).sort((a:any,b:any)=>a.name.localeCompare(b.name,'pt-BR')));
+    }
     if(reservedIds.length)query=query.not('id','in',`(${reservedIds.join(',')})`);
     const {data,error}=await query;
     if(error)return NextResponse.json({error:error.message},{status:500});
@@ -75,7 +90,10 @@ export async function POST(req:Request,{params}:{params:Promise<{id:string}>}){
     if(g.cls.status==='cancelled'||new Date(g.cls.ends_at)<new Date())return NextResponse.json({error:'Esta aula não aceita novos alunos.'},{status:409});
     const {data:student}=await g.admin.from('students').select('id,status,responsible_professor_id').eq('id',student_id).maybeSingle();
     if(!student||student.status!=='ativo')return NextResponse.json({error:'Aluno não está ativo.'},{status:409});
-    if(g.profile.role==='professor'&&student.responsible_professor_id!==g.user.id)return NextResponse.json({error:'Este aluno não está vinculado a você.'},{status:403});
+    if(g.profile.role==='professor'){
+      const {data:secondary}=await g.admin.from('student_professors').select('student_id').eq('student_id',student_id).eq('professor_id',g.user.id).maybeSingle();
+      if(student.responsible_professor_id!==g.user.id&&!secondary)return NextResponse.json({error:'Este aluno não está vinculado a você.'},{status:403});
+    }
     const {count}=await g.admin.from('reservations').select('*',{count:'exact',head:true}).eq('class_id',id).eq('status','reserved');
     if((count||0)>=Number(g.cls.capacity||0))return NextResponse.json({error:'Aula lotada.'},{status:409});
     const {error}=await g.admin.from('reservations').upsert({class_id:id,student_id,status:'reserved',cancelled_at:null},{onConflict:'class_id,student_id'});
