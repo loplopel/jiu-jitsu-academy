@@ -6,7 +6,21 @@ import {CalendarDays,Users,Clock,Plus,QrCode,UserCheck,Edit3,XCircle,Lock,Rotate
 type Role='admin'|'professor'|'aluno';
 type C={id:string;title:string;starts_at:string;ends_at:string;capacity:number;status:'open'|'closed'|'cancelled';professor_id:string;professor_name:string;notes?:string|null;reservations:number;my_reservation_status?:string|null};
 type Professor={id:string;name:string;username?:string;contact_email?:string};
-type Participant={id:string;student_id:string;name:string;login?:string;contact_email?:string;phone:string;avatar_url?:string|null;belt:string;degrees:number;present:boolean;checked_in_at?:string|null;manual?:boolean};
+type Participant={
+  id:string;
+  student_id:string;
+  name:string;
+  login?:string;
+  contact_email?:string;
+  phone:string;
+  avatar_url?:string|null;
+  belt:string;
+  degrees:number;
+  iea:number;
+  present:boolean;
+  checked_in_at?:string|null;
+  manual?:boolean;
+};
 type AvailableStudent={id:string;name:string;login?:string;avatar_url?:string|null;belt:string};
 
 const statusLabel:Record<C['status'],string>={open:'Aberta',closed:'Fechada',cancelled:'Cancelada'};
@@ -107,8 +121,20 @@ export default function Page(){
       {showAddStudent&&<div className="add-student-box"><div><strong>Aluno chegou sem reserva?</strong><div className="muted small-text">Adicione à aula e depois confirme a presença normalmente.</div></div><div className="toolbar"><select className="input" value={addStudentId} onChange={e=>setAddStudentId(e.target.value)}><option value="">Selecione um aluno</option>{available.map(s=><option key={s.id} value={s.id}>{s.name} • {s.belt}</option>)}</select><button className="btn btn-primary" disabled={busy||!addStudentId} onClick={()=>void addStudentToClass()}>Adicionar</button></div></div>}
       {!participants.length?<div className="empty-state">Nenhum aluno reservado.</div>:<div className="table-wrap"><table className="table"><thead><tr><th>Aluno</th><th>Faixa</th><th>Contato</th><th>Presença</th></tr></thead><tbody>{participants
         .filter(p=>!participantQ||`${p.name} ${p.login||''}`.toLowerCase().includes(participantQ.toLowerCase()))
-        .sort((a,b)=>Number(a.present)-Number(b.present)||a.name.localeCompare(b.name,'pt-BR'))
-        .map(p=><tr key={p.id}><td><div className="student-cell">{p.avatar_url?<img className="student-avatar" src={p.avatar_url} alt=""/>:<span className="student-avatar mini">{p.name.slice(0,1)}</span>}<div><strong>{p.name}</strong><div className="muted small-text">{p.login?`Login: ${p.login}`:(p.contact_email||'')}</div></div></div></td><td>{p.belt}{p.degrees?` • ${p.degrees} grau(s)`:''}</td><td>{p.phone||'-'}</td><td>{p.present?<div className="toolbar" style={{gap:8,flexWrap:'wrap'}}><span className="status-badge status-ativo">Presente {p.checked_in_at?new Date(p.checked_in_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):''}</span>{p.manual&&<button className="btn btn-secondary" disabled={busy} onClick={()=>void manualAttendance(p,'remove')}>Desfazer</button>}</div>:<button className="btn btn-primary" disabled={busy} onClick={()=>void manualAttendance(p,'confirm')}><UserCheck size={15}/> Confirmar presença</button>}</td></tr>)}</tbody></table></div>}
+        .sort(
+          (a,b)=>
+            b.iea-a.iea||
+            a.name.localeCompare(b.name,'pt-BR')
+        )
+        .map(p=><tr key={p.id}><td><div className="student-cell">{p.avatar_url?<img className="student-avatar" src={p.avatar_url} alt=""/>:<span className="student-avatar mini">{p.name.slice(0,1)}</span>}<div><strong>{p.name}</strong>
+<div className="muted small-text">
+  IEA {Number(p.iea||0).toFixed(0)}
+  {p.login
+    ? ` • Login: ${p.login}`
+    : p.contact_email
+      ? ` • ${p.contact_email}`
+      : ''}
+</div></div></div></td><td>{p.belt}{p.degrees?` • ${p.degrees} grau(s)`:''}</td><td>{p.phone||'-'}</td><td>{p.present?<div className="toolbar" style={{gap:8,flexWrap:'wrap'}}><span className="status-badge status-ativo">Presente {p.checked_in_at?new Date(p.checked_in_at).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):''}</span>{p.manual&&<button className="btn btn-secondary" disabled={busy} onClick={()=>void manualAttendance(p,'remove')}>Desfazer</button>}</div>:<button className="btn btn-primary" disabled={busy} onClick={()=>void manualAttendance(p,'confirm')}><UserCheck size={15}/> Confirmar presença</button>}</td></tr>)}</tbody></table></div>}
     </div></div>}
   </AppShell>
 }
