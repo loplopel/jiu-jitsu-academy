@@ -119,7 +119,7 @@ export async function GET(){
       profiles!classes_professor_id_fkey(name),
       reservations(id,student_id,status)
     `)
-    .order('starts_at',{ascending:true});
+    .order('starts_at',{ascending:false});
 
   if(error){
     return NextResponse.json(
