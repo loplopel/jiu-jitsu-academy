@@ -2,6 +2,28 @@ import {NextResponse} from 'next/server';
 import {getSupabaseAdmin,getSupabaseServerClient} from '@/lib/supabase-server';
 import {buildEvolution} from '@/lib/evolution';
 
+function brazilDateParts(value:string){
+
+  const parts=new Intl.DateTimeFormat(
+    'en-US',
+    {
+      timeZone:'America/Sao_Paulo',
+      year:'numeric',
+      month:'2-digit',
+      day:'2-digit'
+    }
+  ).formatToParts(new Date(value));
+
+  const result={
+    year:Number(parts.find(p=>p.type==='year')?.value||0),
+    month:Number(parts.find(p=>p.type==='month')?.value||0),
+    day:Number(parts.find(p=>p.type==='day')?.value||0)
+  };
+
+  return result;
+
+}
+
 function monthCounts(dates:string[],year:number){
 
   const counts=Array.from(
@@ -11,11 +33,11 @@ function monthCounts(dates:string[],year:number){
 
   for(const value of dates){
 
-    const date=new Date(value);
+    const date=brazilDateParts(value);
 
-    if(date.getFullYear()===year){
+    if(date.year===year){
 
-      counts[date.getMonth()]++;
+      counts[date.month-1]++;
 
     }
 
@@ -34,16 +56,16 @@ function attendanceDayKeys(
 
   for(const value of dates){
 
-    const date=new Date(value);
+    const date=brazilDateParts(value);
 
-    if(date.getFullYear()!==year)continue;
+    if(date.year!==year)continue;
 
     const month=String(
-      date.getMonth()+1
+      date.month
     ).padStart(2,'0');
 
     const day=String(
-      date.getDate()
+      date.day
     ).padStart(2,'0');
 
     days.add(
@@ -178,8 +200,11 @@ export async function GET(){
 
   const now=new Date();
 
+  const nowBrazil=
+    brazilDateParts(now.toISOString());
+
   const currentYear=
-    now.getFullYear();
+    nowBrazil.year;
 
   const startYear=
     new Date(
@@ -293,10 +318,28 @@ export async function GET(){
   const attendanceRows=
     (attendance.data||[]) as any[];
 
+  /*
+   * A frequência pertence ao dia da aula, não ao horário
+   * em que o check-in foi registrado.
+   *
+   * Exemplo:
+   * aula na sexta às 20:30 + check-in às 21:10
+   * => frequência da sexta-feira.
+   *
+   * O checked_in_at continua sendo usado pelo histórico
+   * e pelo cálculo da evolução/IEA.
+   */
   const attendanceDates=
-    attendanceRows.map(
-      row=>row.checked_in_at
-    );
+    attendanceRows
+      .map(
+        row=>
+          row.classes?.starts_at||
+          row.checked_in_at
+      )
+      .filter(
+        (value): value is string=>
+          Boolean(value)
+      );
 
   const evolution=
     buildEvolution(
@@ -367,25 +410,26 @@ export async function GET(){
       )
       .slice(0,6);
 
-  const monthStart=
-    new Date(
-      currentYear,
-      now.getMonth(),
-      1
-    );
+  const currentMonth=
+    nowBrazil.month;
 
   const monthAttendance=
     attendanceDates.filter(
-      value=>
-        new Date(value)>=
-        monthStart
+      value=>{
+        const date=brazilDateParts(value);
+
+        return(
+          date.year===currentYear&&
+          date.month===currentMonth
+        );
+
+      }
     ).length;
 
   const yearAttendance=
     attendanceDates.filter(
       value=>
-        new Date(value)>=
-        new Date(startYear)
+        brazilDateParts(value).year===currentYear
     ).length;
 
   const recentAttendance=
