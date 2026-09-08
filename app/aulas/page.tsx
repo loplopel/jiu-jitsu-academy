@@ -67,7 +67,22 @@ export default function Page(){
     <section className="hero"><div className="split"><div><h1>Aulas e reservas</h1><div className="muted">Professor abre a aula, aluno reserva e a presença pode ser confirmada por QR Code ou manualmente pelo professor.</div></div>{staff&&<button className="btn btn-primary" onClick={()=>{resetForm();setOpen(v=>!v)}}><Plus size={16}/> Nova aula</button>}</div></section>
 
     {open&&staff&&<form className="card admin-form" onSubmit={save}>
-      <div className="section-title"><h2>{editing?'Editar aula':'Abrir nova aula'}</h2><button type="button" className="btn btn-secondary" onClick={()=>{setOpen(false);resetForm()}}>Cancelar</button></div>
+      <div className="section-title aula-form-header">
+        <div>
+          <h2>{editing ? 'Editar aula' : 'Abrir nova aula'}</h2>
+        </div>
+
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={() => {
+            setOpen(false);
+            resetForm();
+          }}
+        >
+          Cancelar
+        </button>
+      </div>
       <div className="grid grid-3">
         <label><span className="label">Nome da aula</span><input className="input" value={form.title} onChange={e=>setForm({...form,title:e.target.value})} required/></label>
         <label><span className="label">Início</span><input className="input" type="datetime-local" value={form.starts_at} onChange={e=>setForm({...form,starts_at:e.target.value})} required/></label>

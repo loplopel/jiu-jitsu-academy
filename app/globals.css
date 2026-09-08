@@ -1424,3 +1424,55 @@ textarea {
     padding: 9px 13px;
   }
 }
+/* =========================================================
+   CORREÇÃO MOBILE — CABEÇALHO DO FORMULÁRIO DE AULAS
+   Impede "Abrir nova aula" de ficar espremido
+   ========================================================= */
+
+.aula-form-header {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.aula-form-header > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+
+.aula-form-header h2 {
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.aula-form-header .btn {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .aula-form-header {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .aula-form-header h2 {
+    font-size: 22px;
+    line-height: 1.2;
+  }
+
+  .aula-form-header .btn {
+    width: auto;
+    padding: 9px 13px;
+  }
+}
