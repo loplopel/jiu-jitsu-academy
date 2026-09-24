@@ -44,26 +44,151 @@ return NextResponse.json(rows);}
 export async function POST(req:Request){const g=await gate(); if('error'in g)return g.error;const parsed=schema.safeParse(await req.json());if(!parsed.success)return NextResponse.json({error:'Revise os dados do aluno.',details:parsed.error.flatten()},{status:400});const d=parsed.data;const username=normalizeLogin(d.username||'');if(!isValidLogin(username))return NextResponse.json({error:'Informe um login com 3 a 32 caracteres.'},{status:400});if(!d.password||d.password.length<6)return NextResponse.json({error:'A senha inicial deve ter pelo menos 6 caracteres.'},{status:400});const {data:exists}=await g.admin.from('profiles').select('id').ilike('username',username).maybeSingle();if(exists)return NextResponse.json({error:'Este login já está em uso.'},{status:409});const authEmail=syntheticAuthEmail(crypto.randomUUID());const {data:created,error}=await g.admin.auth.admin.createUser({email:authEmail,password:d.password,email_confirm:true,user_metadata:{name:d.name,username}});const id=created.user?.id||'';if(error||!created.user)return NextResponse.json({error:error?.message||'Falha ao criar acesso do aluno'},{status:400});const {error:profileError}=await g.admin.from('profiles').update({name:d.name,username,contact_email:d.contact_email||null,email:authEmail,phone:d.phone||null,avatar_url:d.avatar_url||null,role:'aluno',active:d.status==='ativo'}).eq('id',id);if(profileError){await g.admin.auth.admin.deleteUser(id);return NextResponse.json({error:profileError.message},{status:500});}let categoryId:string|null=null;try{categoryId=await resolveCategory(g.admin,d)}catch(e:any){await g.admin.auth.admin.deleteUser(id);return NextResponse.json({error:e.message||'Falha ao definir categoria.'},{status:500});}const {error:studentError}=await g.admin.from('students').insert({id,...studentPayload(d,categoryId)});if(studentError){await g.admin.auth.admin.deleteUser(id);return NextResponse.json({error:studentError.message},{status:500});}
 try{await syncAdditionalProfessors(g.admin,id,d.additional_professor_ids,d.responsible_professor_id||null);}catch(e:any){await g.admin.from('students').delete().eq('id',id);await g.admin.auth.admin.deleteUser(id);return NextResponse.json({error:e.message||'Falha ao salvar professores adicionais.'},{status:500});}
 return NextResponse.json({id,name:d.name,username},{status:201});}
-export async function PATCH(req:Request){const g=await gate(); if('error'in g)return g.error;const parsed=schema.safeParse(await req.json());if(!parsed.success||!parsed.data.id)return NextResponse.json({error:'Revise os dados do aluno.'},{status:400});const d=parsed.data;const {error:profileError}=await g.admin.from('profiles').update({name:d.name,contact_email:d.contact_email||null,phone:d.phone||null,avatar_url:d.avatar_url||null,active:d.status==='ativo'}).eq('id',d.id).eq('role','aluno');if(profileError)return NextResponse.json({error:profileError.message},{status:500});let categoryId:string|null=null;try{categoryId=await resolveCategory(g.admin,d)}catch(e:any){return NextResponse.json({error:e.message||'Falha ao definir categoria.'},{status:500});}const {error:studentError}=await g.admin.from('students').update(studentPayload(d,categoryId)).eq('id',d.id);if(studentError)return NextResponse.json({error:studentError.message},{status:500});
-try{
-  if(!d.id){
+export async function PATCH(req:Request){
+  const g=await gate();
+  if('error'in g)return g.error;
+
+  const parsed=schema.safeParse(await req.json());
+
+  if(!parsed.success||!parsed.data.id){
     return NextResponse.json(
-      {error:'ID do aluno não informado.'},
+      {error:'Revise os dados do aluno.'},
       {status:400}
     );
   }
 
-  await syncAdditionalProfessors(
-    g.admin,
-    d.id,
-    d.additional_professor_ids,
-    d.responsible_professor_id||null
-  );
-}catch(e:any){
-  return NextResponse.json(
-    {error:e.message||'Falha ao salvar professores adicionais.'},
-    {status:500}
-  );
+  const d=parsed.data;
+
+  /*
+   * Busca o cadastro atual antes da alteração.
+   *
+   * Precisamos saber a faixa e o grau atuais
+   * para identificar se houve uma nova graduação.
+   */
+  const {data:currentStudent,error:currentError}=await g.admin
+    .from('students')
+    .select('id,belt_id,degrees,last_graduation_date')
+    .eq('id',d.id)
+    .single();
+
+  if(currentError||!currentStudent){
+    return NextResponse.json(
+      {error:'Aluno não encontrado.'},
+      {status:404}
+    );
+  }
+
+  /*
+   * Detecta mudança de faixa ou grau.
+   */
+  const beltChanged=
+    (currentStudent.belt_id||null)!==(d.belt_id||null);
+
+  const degreeChanged=
+    Number(currentStudent.degrees||0)!==Number(d.degrees||0);
+
+  const graduationChanged=
+    beltChanged||degreeChanged;
+
+  /*
+   * Quando houver nova graduação:
+   *
+   * - reinicia o marco da evolução;
+   * - a partir desta data começa uma nova contagem de 70 aulas.
+   *
+   * Caso não tenha mudado faixa/grau, preservamos
+   * a data de graduação já existente.
+   */
+  const lastGraduationDate=
+    graduationChanged
+      ? new Date().toISOString().slice(0,10)
+      : (
+          d.last_graduation_date
+          ?? currentStudent.last_graduation_date
+          ?? null
+        );
+
+  const {error:profileError}=await g.admin
+    .from('profiles')
+    .update({
+      name:d.name,
+      contact_email:d.contact_email||null,
+      phone:d.phone||null,
+      avatar_url:d.avatar_url||null,
+      active:d.status==='ativo'
+    })
+    .eq('id',d.id)
+    .eq('role','aluno');
+
+  if(profileError){
+    return NextResponse.json(
+      {error:profileError.message},
+      {status:500}
+    );
+  }
+
+  let categoryId:string|null=null;
+
+  try{
+    categoryId=await resolveCategory(g.admin,d);
+  }catch(e:any){
+    return NextResponse.json(
+      {error:e.message||'Falha ao definir categoria.'},
+      {status:500}
+    );
+  }
+
+  /*
+   * Montamos o payload normalmente, mas sobrescrevemos
+   * last_graduation_date com a nova data quando houve
+   * alteração de faixa/grau.
+   */
+  const payload={
+    ...studentPayload(d,categoryId),
+    last_graduation_date:lastGraduationDate
+  };
+
+  const {error:studentError}=await g.admin
+    .from('students')
+    .update(payload)
+    .eq('id',d.id);
+
+  if(studentError){
+    return NextResponse.json(
+      {error:studentError.message},
+      {status:500}
+    );
+  }
+
+  try{
+    if(!d.id){
+      return NextResponse.json(
+        {error:'ID do aluno não informado.'},
+        {status:400}
+      );
+    }
+
+    await syncAdditionalProfessors(
+      g.admin,
+      d.id,
+      d.additional_professor_ids,
+      d.responsible_professor_id||null
+    );
+
+  }catch(e:any){
+    return NextResponse.json(
+      {
+        error:
+          e.message||
+          'Falha ao salvar professores adicionais.'
+      },
+      {status:500}
+    );
+  }
+
+  return NextResponse.json({
+    ok:true,
+    graduation_reset:graduationChanged,
+    last_graduation_date:lastGraduationDate
+  });
 }
-return NextResponse.json({ok:true});}
-export async function DELETE(req:Request){const g=await gate(); if('error'in g)return g.error;if(g.role!=='admin')return NextResponse.json({error:'Apenas o Administrador Geral pode excluir alunos.'},{status:403});const id=new URL(req.url).searchParams.get('id');if(!id||!z.string().uuid().safeParse(id).success)return NextResponse.json({error:'Aluno inválido.'},{status:400});for(const table of ['graduations','student_achievements','iea_scores']){const {error}=await g.admin.from(table).delete().eq('student_id',id);if(error)return NextResponse.json({error:`Falha ao limpar ${table}: ${error.message}`},{status:500});}const {data:files}=await g.admin.storage.from('student-photos').list(id,{limit:100});if(files?.length)await g.admin.storage.from('student-photos').remove(files.map(f=>`${id}/${f.name}`));const {error}=await g.admin.auth.admin.deleteUser(id);if(error)return NextResponse.json({error:error.message},{status:500});return NextResponse.json({ok:true});}

@@ -112,16 +112,144 @@ const[progress,setProgress]=useState<Record<string,{
     setMsg(r.ok?'Senha do aluno redefinida com sucesso.':j.error||'Falha ao redefinir senha.');
   }
 
-  async function save(e:React.FormEvent){
-    e.preventDefault(); setSaving(true); setMsg('Salvando aluno...');
-    try{
-      const payload={...form,id:editing||undefined,weight:form.weight===''?null:Number(form.weight),height:form.height===''?null:Number(form.height),degrees:Number(form.degrees),category_id:form.category_id||null,responsible_professor_id:form.responsible_professor_id||null,additional_professor_ids:form.additional_professor_ids||[],belt_id:form.belt_id||null,category_name:category.label||null};
-      const r=await fetch('/api/students',{method:editing?'PATCH':'POST',headers:{'content-type':'application/json'},body:JSON.stringify(payload)}); const j=await r.json();
-      if(!r.ok)throw new Error(j.error||'Falha ao salvar aluno');
-      const id=editing||j.id; if(photo&&id)await uploadPhoto(id);
-      setMsg(editing?'Aluno atualizado com sucesso.':`Aluno cadastrado. Login: ${j.username}`); setOpen(false); setEditing(null); setForm(empty); setPhoto(null); await load();
-    }catch(err:any){setMsg(err.message||'Falha ao salvar aluno.')}finally{setSaving(false)}
-  }
+    async function save(e:React.FormEvent){
+
+      e.preventDefault();
+
+      /*
+      * Quando estamos editando um aluno, verificamos
+      * se houve alteração de faixa ou grau.
+      *
+      * Somente essas alterações reiniciam a contagem
+      * para evolução do próximo grau.
+      */
+      if(editing){
+
+        const current=rows.find(
+          x=>x.id===editing
+        );
+
+        if(current){
+
+          const beltChanged=
+            (current.belt_id||null)!==
+            (form.belt_id||null);
+
+          const degreeChanged=
+            Number(current.degrees||0)!==
+            Number(form.degrees||0);
+
+          const graduationChanged=
+            beltChanged||
+            degreeChanged;
+
+          if(graduationChanged){
+
+            const confirmed=window.confirm(
+              'Deseja realmente fazer isso?\n\n' +
+              'Com isso a contagem para evolução do seu aluno irá reiniciar.'
+            );
+
+            if(!confirmed){
+              return;
+            }
+          }
+        }
+      }
+
+      setSaving(true);
+      setMsg('Salvando aluno...');
+
+      try{
+
+        const payload={
+          ...form,
+          id:editing||undefined,
+
+          weight:
+            form.weight===''
+              ?null
+              :Number(form.weight),
+
+          height:
+            form.height===''
+              ?null
+              :Number(form.height),
+
+          degrees:
+            Number(form.degrees),
+
+          category_id:
+            form.category_id||null,
+
+          responsible_professor_id:
+            form.responsible_professor_id||null,
+
+          additional_professor_ids:
+            form.additional_professor_ids||[],
+
+          belt_id:
+            form.belt_id||null,
+
+          category_name:
+            category.label||null
+        };
+
+        const r=await fetch(
+          '/api/students',
+          {
+            method:editing?'PATCH':'POST',
+            headers:{
+              'content-type':'application/json'
+            },
+            body:JSON.stringify(payload)
+          }
+        );
+
+        const j=await r.json();
+
+        if(!r.ok){
+          throw new Error(
+            j.error||
+            'Falha ao salvar aluno'
+          );
+        }
+
+        const id=
+          editing||
+          j.id;
+
+        if(photo&&id){
+          await uploadPhoto(id);
+        }
+
+        setMsg(
+          editing
+            ?'Aluno atualizado com sucesso.'
+            :`Aluno cadastrado. Login: ${j.username}`
+        );
+
+        setOpen(false);
+        setEditing(null);
+        setForm(empty);
+        setPhoto(null);
+
+        await load();
+
+      }catch(err:any){
+
+        setMsg(
+          err.message||
+          'Falha ao salvar aluno.'
+        );
+
+      }finally{
+
+        setSaving(false);
+
+      }
+    }
+  
 
   return <AppShell>
     <section className="hero"><div className="split"><div><h1>Alunos</h1><div className="muted">Cadastro completo, vínculo com professor, categoria, faixa e acesso individual ao aplicativo.</div></div><button className="btn btn-primary" onClick={beginNew}><Plus size={16}/> Novo aluno</button></div></section>
